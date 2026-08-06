@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#05060a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./shared-styles.css">
+  <style>
+    ::selection { background: rgba(147,51,234,0.4); }
+    @keyframes scPulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes scRise { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes scSplashOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+    @keyframes scRingA { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes scRingB { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+    @keyframes scCore { 0%,100% { filter: drop-shadow(0 0 10px rgba(176,110,247,0.5)); } 50% { filter: drop-shadow(0 0 26px rgba(176,110,247,0.95)); } }
+    @keyframes scScan { 0% { transform: translateY(-40vh); } 100% { transform: translateY(120vh); } }
+    @keyframes scBar { from { width: 0%; } to { width: 100%; } }
+    @keyframes scCaret { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+    @keyframes scLed { 0%,100% { opacity: 1; box-shadow: 0 0 10px currentColor; } 50% { opacity: 0.45; box-shadow: 0 0 3px currentColor; } }
+    @keyframes scSpine { 0%,100% { transform: translateY(0); opacity: 0.9; } 50% { transform: translateY(26px); opacity: 0.5; } }
+  </style>
+</helmet>
+
+<div style="max-width:480px;margin:0 auto;min-height:100dvh;background-color:#05060a;background-image:radial-gradient(120% 55% at 50% -10%, rgba(88,28,135,0.22), transparent 62%),radial-gradient(1.2px 1.2px at 24px 38px, rgba(190,200,235,0.3), transparent),radial-gradient(1px 1px at 110px 92px, rgba(190,200,235,0.18), transparent),radial-gradient(1.4px 1.4px at 68px 150px, rgba(190,200,235,0.12), transparent);background-size:auto,190px 190px,240px 240px,300px 300px;color:#e9ecf2;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,system-ui,sans-serif;font-size:15px;line-height:1.5;position:relative;overflow:hidden" data-screen-label="Command Center">
+
+  <!-- ambient page scanline -->
+  <div style="position:absolute;left:0;right:0;top:0;height:90px;background:linear-gradient(180deg,transparent,rgba(147,180,255,0.025),transparent);animation:scScan 9s linear infinite;pointer-events:none;z-index:5"></div>
+
+  <!-- ============ SPLASH ============ -->
+  <sc-if value="{{ splashVisible }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ dismissSplash }}" style="position:fixed;inset:0;z-index:500;display:flex;justify-content:center;background:#04050a;cursor:pointer;animation:{{ splashAnim }}">
+      <div style="width:100%;max-width:480px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;overflow:hidden;background-image:radial-gradient(95% 50% at 50% 34%, rgba(88,28,135,0.34), transparent 68%),radial-gradient(1.2px 1.2px at 30px 44px, rgba(190,200,235,0.35), transparent),radial-gradient(1px 1px at 120px 100px, rgba(190,200,235,0.2), transparent);background-size:auto,170px 170px,260px 260px">
+        <div style="position:absolute;left:0;right:0;height:110px;background:linear-gradient(180deg,transparent,rgba(176,110,247,0.05),transparent);animation:scScan 3.6s linear infinite"></div>
+        <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,0.013) 0 1px,transparent 1px 3px)"></div>
+
+        <!-- emblem construction -->
+        <div style="position:relative;width:170px;height:170px;display:grid;place-items:center;animation:scRise 0.8s cubic-bezier(0.22,1,0.36,1) both">
+          <svg width="170" height="170" viewBox="0 0 170 170" fill="none" style="position:absolute;inset:0;animation:scRingA 28s linear infinite">
+            <polygon points="85,6 153,45 153,125 85,164 17,125 17,45" stroke="rgba(176,110,247,0.3)" stroke-width="1" stroke-dasharray="12 7"></polygon>
+          </svg>
+          <svg width="170" height="170" viewBox="0 0 170 170" fill="none" style="position:absolute;inset:0;animation:scRingB 20s linear infinite">
+            <polygon points="85,18 143,51 143,119 85,152 27,119 27,51" stroke="rgba(176,110,247,0.45)" stroke-width="1.2" stroke-dasharray="4 10"></polygon>
+          </svg>
+          <svg width="170" height="170" viewBox="0 0 170 170" fill="none" style="position:absolute;inset:0">
+            <polygon points="85,28 134,56 134,114 85,142 36,114 36,56" stroke="rgba(176,110,247,0.6)" stroke-width="1.6"></polygon>
+            <polygon points="85,28 134,56 134,114 85,142 36,114 36,56" stroke="rgba(147,51,234,0.14)" stroke-width="7"></polygon>
+          </svg>
+          <svg width="76" height="76" viewBox="0 0 72 72" fill="none" style="animation:scCore 2.8s ease-in-out infinite">
+            <path d="M36 6l7 16 16 4-11 11 2.6 17L36 46.5 21.4 54 24 37 13 26l16-4 7-16z" fill="rgba(147,51,234,0.3)" stroke="#c99af7" stroke-width="2" stroke-linejoin="round"></path>
+            <circle cx="36" cy="33" r="4.5" fill="#e9d5ff"></circle>
+          </svg>
+        </div>
+
+        <!-- wordmark -->
+        <div style="position:relative;text-align:center;margin-top:28px;animation:scRise 0.8s 0.12s cubic-bezier(0.22,1,0.36,1) both">
+          <div style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.52em;text-transform:uppercase;color:#8a91a5;padding-left:0.52em">StarCraft Tabletop</div>
+          <div style="position:relative;margin-top:2px">
+            <div style="font-family:'Chakra Petch',sans-serif;font-size:44px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#e9ecf2;line-height:1.1;padding-left:0.16em;text-shadow:0 0 30px rgba(176,110,247,0.5)">Adjutant</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-top:8px">
+            <span style="height:1px;width:34px;background:linear-gradient(90deg,transparent,#7c3aed)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.3em;text-transform:uppercase;color:#b06ef7;padding-left:0.3em">Field Companion</span>
+            <span style="height:1px;width:34px;background:linear-gradient(90deg,#7c3aed,transparent)"></span>
+          </div>
+        </div>
+
+        <!-- boot log -->
+        <div style="position:relative;margin-top:30px;display:grid;gap:5px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;text-align:center">
+          <div style="color:#5b6275;animation:scRise 0.4s 0.7s ease both">▸ Uplink established</div>
+          <div style="color:#5b6275;animation:scRise 0.4s 1.2s ease both">▸ Telemetry <span style="color:#5fd98d">online</span></div>
+          <div style="color:#8a91a5;animation:scRise 0.4s 1.7s ease both;">Awaiting command <span style="display:inline-block;width:7px;height:11px;background:#b06ef7;vertical-align:-1px;animation:scCaret 1s steps(1) infinite"></span></div>
+        </div>
+
+        <!-- segmented progress -->
+        <div style="position:absolute;left:36px;right:36px;bottom:calc(34px + env(safe-area-inset-bottom))">
+          <div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.26em;text-transform:uppercase;color:#5b6275;text-align:center;margin-bottom:8px;animation:scPulse 1.8s infinite">Tap to deploy</div>
+          <div style="position:relative;height:5px;background:#141824;overflow:hidden">
+            <div style="height:100%;background:linear-gradient(90deg,#7c3aed,#c99af7);box-shadow:0 0 12px rgba(176,110,247,0.8);animation:scBar 2.6s 0.2s cubic-bezier(0.4,0,0.2,1) both"></div>
+            <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0 10px,#04050a 10px 13px)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ SYSTEM BAR ============ -->
+  <div style="display:flex;align-items:center;gap:8px;padding:calc(12px + env(safe-area-inset-top)) 18px 10px;border-bottom:1px solid rgba(43,49,69,0.6)">
+    <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:#5b6275">Adjutant // Tactical Interface</span>
+    <span style="flex:1"></span>
+    <span style="width:7px;height:7px;border-radius:50%;background:#35c76b;color:#35c76b;animation:scLed 2.2s infinite"></span>
+    <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#35c76b">Online</span>
+  </div>
+
+  <div style="padding:20px 16px calc(30px + env(safe-area-inset-bottom))">
+
+    <!-- ============ TITLE ============ -->
+    <div style="position:relative;margin-bottom:20px;animation:scRise 0.5s ease both">
+      <div aria-hidden="true" style="position:absolute;top:3px;left:3px;font-family:'Chakra Petch',sans-serif;font-size:min(32px,7.6vw);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;line-height:1.1;color:transparent;-webkit-text-stroke:1px rgba(147,110,247,0.16);pointer-events:none;white-space:nowrap">Command Center</div>
+      <div style="position:relative;font-family:'Chakra Petch',sans-serif;font-size:min(32px,7.6vw);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;line-height:1.1;color:#e9ecf2;white-space:nowrap">Command Center</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+        <span style="width:26px;height:2px;background:#7c3aed"></span>
+        <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.24em;text-transform:uppercase;color:#8a91a5">Select faction · Consult manual · Track ops</span>
+      </div>
+    </div>
+
+    <!-- ============ LIVE OPS READOUT ============ -->
+    <div style="position:relative;margin-bottom:24px;animation:scRise 0.5s 0.06s ease both">
+      <div style="position:relative;background:linear-gradient(180deg,rgba(147,51,234,0.5),rgba(43,49,69,0.5));clip-path:var(--sc-corner-12);padding:1px">
+        <div style="background:var(--sc-card-bg);clip-path:var(--sc-corner-12)">
+          <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid rgba(43,49,69,0.7)">
+            <span style="width:6px;height:6px;background:{{ phaseColor }};box-shadow:0 0 9px {{ phaseColor }};animation:scPulse 2s infinite"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.26em;text-transform:uppercase;color:#8a91a5">Live Operation</span>
+            <span style="flex:1"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:{{ statusColor }}">{{ statusLabel }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1.4fr 1.1fr">
+            <div style="padding:12px 8px 14px;text-align:center;border-right:1px solid rgba(43,49,69,0.7)">
+              <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#5b6275;margin-bottom:2px">Round</div>
+              <div style="font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:700;color:#e9ecf2;line-height:1;text-shadow:0 0 16px rgba(176,110,247,0.35)">{{ round }}</div>
+            </div>
+            <div style="padding:12px 8px 14px;text-align:center;border-right:1px solid rgba(43,49,69,0.7)">
+              <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#5b6275;margin-bottom:2px">Phase</div>
+              <div style="font-family:'Chakra Petch',sans-serif;font-size:19px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:{{ phaseColor }};line-height:1.35;text-shadow:0 0 14px {{ phaseColor }}">{{ phaseName }}</div>
+              <div style="display:flex;gap:4px;justify-content:center;margin-top:6px">
+                <sc-for list="{{ pips }}" as="pp" hint-placeholder-count="4">
+                  <span style="width:16px;height:3px;background:{{ pp.bg }};box-shadow:{{ pp.glow }}"></span>
+                </sc-for>
+              </div>
+            </div>
+            <div style="padding:12px 8px 14px;text-align:center">
+              <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#5b6275;margin-bottom:2px">Victory Pts</div>
+              <div style="font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;line-height:1.15"><span style="color:#c99af7">{{ vpYou }}</span><span style="color:#3a4154;font-size:18px"> : </span><span style="color:#8a91a5">{{ vpFoe }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FACTION PANELS ============ -->
+    <div style="display:flex;align-items:center;gap:8px;padding:0 2px 12px;animation:scRise 0.5s 0.1s ease both">
+      <span style="font-family:'Chakra Petch',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#e9ecf2">Factions</span>
+      <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-input),transparent)"></span>
+      <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#5b6275">3 Rosters</span>
+    </div>
+
+    <div style="display:grid;gap:12px;margin-bottom:26px">
+
+      <!-- ZERG -->
+      <a href="Zerg Army.dc.html" style="position:relative;display:block;text-decoration:none;color:#e9ecf2;animation:scRise 0.5s 0.14s ease both">
+        <span style="display:block;background:linear-gradient(120deg,rgba(176,110,247,0.65),rgba(88,28,135,0.25) 40%,rgba(43,49,69,0.5));clip-path:var(--sc-corner-16);padding:1px">
+          <span style="position:relative;display:flex;align-items:center;min-height:128px;overflow:hidden;background-color:#0b0e17;background-image:radial-gradient(90% 130% at 88% 12%, rgba(147,51,234,0.4), transparent 58%),radial-gradient(70% 100% at 8% 100%, rgba(88,28,135,0.35), transparent 55%);clip-path:var(--sc-corner-16)">
+            <span style="position:absolute;right:-30px;top:50%;width:188px;height:212px;transform:translateY(-50%) rotate(10deg);pointer-events:none;opacity:0.2;background:linear-gradient(150deg,#e9d5ff,#9333ea 70%);mask-image:url('uploads/zerglogo.png');-webkit-mask-image:url('uploads/zerglogo.png');mask-size:contain;-webkit-mask-size:contain;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;mask-position:center;-webkit-mask-position:center"></span>
+            <span style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#9333ea,#4c1d95);overflow:hidden"><span style="position:absolute;left:0;width:100%;height:22px;background:#e9d5ff;opacity:0.8;animation:scSpine 2.6s ease-in-out infinite"></span></span>
+            <span style="position:relative;flex:1;min-width:0;padding:18px 16px 18px 20px">
+              <span style="display:block;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#a78bda">The Swarm</span>
+              <span style="display:block;font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;line-height:1.15;text-shadow:0 0 22px rgba(176,110,247,0.45)">Zerg</span>
+              <span style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;background:rgba(147,51,234,0.16);border:1px solid rgba(176,110,247,0.4);color:#c99af7">10 Units</span>
+                <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;background:rgba(147,51,234,0.16);border:1px solid rgba(176,110,247,0.4);color:#c99af7">11 Tactics</span>
+                <span style="display:flex;align-items:center;gap:5px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5fd98d"><span style="width:6px;height:6px;border-radius:50%;background:#35c76b;color:#35c76b;animation:scLed 2.2s infinite"></span>Ready</span>
+              </span>
+            </span>
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" style="position:relative;flex:0 0 auto;margin-right:16px;color:#c99af7"><path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+        </span>
+      </a>
+
+      <!-- TERRAN -->
+      <a href="Terran Army.dc.html" style="position:relative;display:block;text-decoration:none;color:#e9ecf2;animation:scRise 0.5s 0.18s ease both">
+        <span style="display:block;background:linear-gradient(120deg,rgba(98,169,247,0.6),rgba(30,64,175,0.25) 40%,rgba(43,49,69,0.5));clip-path:var(--sc-corner-16);padding:1px">
+          <span style="position:relative;display:flex;align-items:center;min-height:128px;overflow:hidden;background-color:#0b0e17;background-image:repeating-linear-gradient(0deg,rgba(98,169,247,0.045) 0 1px,transparent 1px 12px),radial-gradient(1.4px 1.4px at 14px 14px, rgba(98,169,247,0.2), transparent),linear-gradient(105deg,rgba(30,64,175,0.34),transparent 65%);background-size:auto,30px 30px,auto;clip-path:var(--sc-corner-16)">
+            <span style="position:absolute;right:-26px;top:50%;width:200px;height:195px;transform:translateY(-50%) rotate(-6deg);pointer-events:none;opacity:0.19;background:linear-gradient(150deg,#dbeafe,#2563eb 72%);mask-image:url('uploads/terranlogo.png');-webkit-mask-image:url('uploads/terranlogo.png');mask-size:contain;-webkit-mask-size:contain;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;mask-position:center;-webkit-mask-position:center"></span>
+            <span style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#2563eb,#1e3a8a);overflow:hidden"><span style="position:absolute;left:0;width:100%;height:22px;background:#dbeafe;opacity:0.8;animation:scSpine 3.1s ease-in-out infinite"></span></span>
+            <span style="position:relative;flex:1;min-width:0;padding:18px 16px 18px 20px">
+              <span style="display:block;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#7ea9d9">The Dominion</span>
+              <span style="display:block;font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;line-height:1.15;text-shadow:0 0 22px rgba(98,169,247,0.4)">Terran</span>
+              <span style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;background:rgba(37,99,235,0.14);border:1px solid rgba(98,169,247,0.4);color:#8ec3fa">7 Units</span>
+                <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;background:rgba(37,99,235,0.14);border:1px solid rgba(98,169,247,0.4);color:#8ec3fa">10 Tactics</span>
+                <span style="display:flex;align-items:center;gap:5px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5fd98d"><span style="width:6px;height:6px;border-radius:50%;background:#35c76b;color:#35c76b;animation:scLed 2.6s infinite"></span>Ready</span>
+              </span>
+            </span>
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" style="position:relative;flex:0 0 auto;margin-right:16px;color:#8ec3fa"><path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+        </span>
+      </a>
+
+      <!-- PROTOSS -->
+      <a href="Protoss Army.dc.html" style="position:relative;display:block;text-decoration:none;color:#e9ecf2;animation:scRise 0.5s 0.22s ease both">
+        <span style="display:block;background:linear-gradient(120deg,rgba(242,200,96,0.55),rgba(120,90,20,0.25) 40%,rgba(43,49,69,0.5));clip-path:var(--sc-corner-16);padding:1px">
+          <span style="position:relative;display:flex;align-items:center;min-height:128px;overflow:hidden;background-color:#0b0e17;background-image:conic-gradient(from 210deg at 82% 28%, rgba(242,200,96,0.2), transparent 22%, rgba(242,200,96,0.08) 48%, transparent 72%, rgba(242,200,96,0.2)),linear-gradient(105deg,rgba(120,90,20,0.3),transparent 62%);clip-path:var(--sc-corner-16)">
+            <span style="position:absolute;inset:7px;border:1px solid rgba(242,200,96,0.16);pointer-events:none;clip-path:var(--sc-corner-12)"></span>
+            <span style="position:absolute;right:-8px;top:50%;width:118px;height:230px;transform:translateY(-50%) rotate(8deg);pointer-events:none;opacity:0.22;background:linear-gradient(150deg,#fdf3d7,#d4a537 72%);mask-image:url('uploads/protosslogo.png');-webkit-mask-image:url('uploads/protosslogo.png');mask-size:contain;-webkit-mask-size:contain;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;mask-position:center;-webkit-mask-position:center"></span>
+            <span style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#d4a537,#8a6a1a);overflow:hidden"><span style="position:absolute;left:0;width:100%;height:22px;background:#fdf3d7;opacity:0.8;animation:scSpine 2.9s ease-in-out infinite"></span></span>
+            <span style="position:relative;flex:1;min-width:0;padding:18px 16px 18px 20px">
+              <span style="display:block;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#cfb06a">The Firstborn</span>
+              <span style="display:block;font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;line-height:1.15;text-shadow:0 0 22px rgba(242,200,96,0.38)">Protoss</span>
+              <span style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;background:rgba(180,130,30,0.14);border:1px solid rgba(242,200,96,0.4);color:#f6d98c">7 Units</span>
+                <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;background:rgba(180,130,30,0.14);border:1px solid rgba(242,200,96,0.4);color:#f6d98c">13 Tactics</span>
+                <span style="display:flex;align-items:center;gap:5px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5fd98d"><span style="width:6px;height:6px;border-radius:50%;background:#35c76b;color:#35c76b;animation:scLed 2.4s infinite"></span>Ready</span>
+              </span>
+            </span>
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" style="position:relative;flex:0 0 auto;margin-right:16px;color:#f6d98c"><path d="M5 3l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </span>
+        </span>
+      </a>
+    </div>
+
+    <!-- ============ FIELD MANUAL ============ -->
+    <div style="display:flex;align-items:center;gap:8px;padding:0 2px 12px;animation:scRise 0.5s 0.26s ease both">
+      <span style="font-family:'Chakra Petch',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#e9ecf2">Field Manual</span>
+      <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-input),transparent)"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <!-- Rules -->
+      <a href="Rules.dc.html" style="position:relative;display:block;padding:16px 14px;text-decoration:none;color:#e9ecf2;background:var(--sc-card-bg);border:1px solid #232939;animation:scRise 0.5s 0.3s ease both">
+        <span style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-top:2px solid #38d3e8;border-left:2px solid #38d3e8"></span>
+        <span style="position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-top:2px solid #38d3e8;border-right:2px solid #38d3e8"></span>
+        <span style="position:absolute;bottom:-1px;left:-1px;width:11px;height:11px;border-bottom:2px solid #38d3e8;border-left:2px solid #38d3e8"></span>
+        <span style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-bottom:2px solid #38d3e8;border-right:2px solid #38d3e8"></span>
+        <svg width="26" height="26" viewBox="0 0 16 16" fill="none" style="display:block;color:#38d3e8;margin-bottom:10px;filter:drop-shadow(0 0 8px rgba(56,211,232,0.5))"><path d="M3 2.5h7.5A2.5 2.5 0 0113 5v8.5H5.5A2.5 2.5 0 013 11V2.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path><path d="M6 5.5h4M6 8h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>
+        <span style="display:block;font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Rules</span>
+        <span style="display:block;font-size:11.5px;color:#8a91a5;line-height:1.5;margin-top:3px">Phases, actions, keywords & judge calls</span>
+      </a>
+
+      <!-- War Room -->
+      <a href="Missions.dc.html" style="position:relative;display:block;padding:16px 14px;text-decoration:none;color:#e9ecf2;background:var(--sc-card-bg);border:1px solid #232939;animation:scRise 0.5s 0.34s ease both">
+        <span style="position:absolute;top:-1px;left:-1px;width:11px;height:11px;border-top:2px solid #35c76b;border-left:2px solid #35c76b"></span>
+        <span style="position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-top:2px solid #35c76b;border-right:2px solid #35c76b"></span>
+        <span style="position:absolute;bottom:-1px;left:-1px;width:11px;height:11px;border-bottom:2px solid #35c76b;border-left:2px solid #35c76b"></span>
+        <span style="position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;border-bottom:2px solid #35c76b;border-right:2px solid #35c76b"></span>
+        <svg width="26" height="26" viewBox="0 0 16 16" fill="none" style="display:block;color:#35c76b;margin-bottom:10px;filter:drop-shadow(0 0 8px rgba(53,199,107,0.5))"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"></circle><circle cx="8" cy="8" r="2.4" stroke="currentColor" stroke-width="1.4"></circle><path d="M8 2v2.5M8 11.5V14M2 8h2.5M11.5 8H14" stroke="currentColor" stroke-width="1.4"></path></svg>
+        <span style="display:block;font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">War Room</span>
+        <span style="display:block;font-size:11.5px;color:#8a91a5;line-height:1.5;margin-top:3px">Missions, maps & battle setup</span>
+      </a>
+    </div>
+
+    <!-- footer -->
+    <div style="display:flex;align-items:center;gap:10px;margin-top:28px;animation:scRise 0.5s 0.4s ease both">
+      <span style="flex:1;height:1px;background:linear-gradient(90deg,transparent,#232939)"></span>
+      <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.26em;text-transform:uppercase;color:#3a4154">Adjutant v5 · Unofficial fan companion</span>
+      <span style="flex:1;height:1px;background:linear-gradient(90deg,#232939,transparent)"></span>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { splash: !localStorage.getItem('sctmg_intro_seen'), leaving: false, play: null };
+
+  componentDidMount() {
+    try { this.setState({ play: JSON.parse(localStorage.getItem('sctmg_play') || 'null') }); } catch (e) {}
+    if (this.state.splash) this._auto = setTimeout(() => this.dismiss(), 3000);
+  }
+  componentWillUnmount() { clearTimeout(this._auto); clearTimeout(this._out); }
+
+  dismiss() {
+    if (!this.state.splash || this.state.leaving) return;
+    clearTimeout(this._auto);
+    try { localStorage.setItem('sctmg_intro_seen', '1'); } catch (e) {}
+    this.setState({ leaving: true });
+    this._out = setTimeout(() => this.setState({ splash: false }), 450);
+  }
+
+  renderVals() {
+    const play = this.state.play;
+    const p = play || { round: 1, phase: 0, vpYou: 0, vpFoe: 0 };
+    const phases = [
+      { name: 'Movement', color: '#4f8df9' },
+      { name: 'Assault', color: '#f9822f' },
+      { name: 'Combat', color: '#f04a4a' },
+      { name: 'Scoring', color: '#35c76b' }
+    ];
+    const ph = phases[p.phase] || phases[0];
+    const hasGame = !!play && (play.round > 1 || play.phase > 0 || play.vpYou > 0 || play.vpFoe > 0);
+
+    return {
+      splashVisible: this.state.splash,
+      splashAnim: this.state.leaving ? 'scSplashOut 0.45s ease both' : 'scFade 0.3s ease',
+      dismissSplash: () => this.dismiss(),
+      round: p.round, phaseName: ph.name, phaseColor: ph.color,
+      vpYou: p.vpYou, vpFoe: p.vpFoe,
+      statusLabel: hasGame ? 'In Progress' : 'Standby',
+      statusColor: hasGame ? '#5fd98d' : '#5b6275',
+      pips: phases.map((x, i) => ({
+        bg: i === p.phase ? x.color : '#232939',
+        glow: i === p.phase ? '0 0 8px ' + x.color : 'none'
+      }))
+    };
+  }
+}
+
+</script>
+</body>
+</html>

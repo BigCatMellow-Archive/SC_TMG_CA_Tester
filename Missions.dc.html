@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#05060a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./shared-styles.css">
+  <style>
+    ::selection { background: rgba(53,199,107,0.35); }
+  </style>
+  <script src="missions-data.js"></script>
+</helmet>
+
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<div style="max-width:480px;margin:0 auto;min-height:100dvh;background-color:#05060a;background-image:radial-gradient(120% 55% at 50% -10%, rgba(16,84,45,0.32), transparent 62%),radial-gradient(1.2px 1.2px at 24px 38px, rgba(190,200,235,0.22), transparent),radial-gradient(1px 1px at 110px 92px, rgba(190,200,235,0.13), transparent);background-size:auto,190px 190px,240px 240px;color:#e9ecf2;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,system-ui,sans-serif;font-size:15px;line-height:1.5;padding-bottom:calc(40px + env(safe-area-inset-bottom))" data-screen-label="War Room">
+
+  <!-- ============ STICKY HEADER ============ -->
+  <div style="position:sticky;top:0;z-index:200;background:rgba(5,6,10,0.93);backdrop-filter:blur(14px);border-bottom:1px solid #232939;box-shadow:0 12px 28px rgba(0,0,0,0.5)">
+    <div style="display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 8px">
+      <a href="Command Center.dc.html" aria-label="Back to command center" style="width:40px;height:40px;flex:0 0 auto;display:grid;place-items:center;color:#8a91a5;text-decoration:none;background:#141824;border:1px solid var(--sc-border-neutral);clip-path:var(--sc-corner-8)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </a>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#8a91a5">StarCraft TMG · Battle Setup</div>
+        <div style="font-family:'Chakra Petch',sans-serif;font-size:24px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#e9ecf2;line-height:1.1;text-shadow:0 0 18px rgba(53,199,107,0.4)">War Room</div>
+      </div>
+      <span style="width:9px;height:9px;background:#35c76b;box-shadow:0 0 10px #35c76b;animation:scPulse 2s infinite;clip-path:var(--sc-diamond)"></span>
+    </div>
+
+    <!-- play HUD strip -->
+    <div onClick="{{ togglePlay }}" role="button" aria-label="Open round tracker" style="margin:0 14px 8px;background:linear-gradient(120deg,rgba(53,199,107,0.5),rgba(43,49,69,0.5) 55%);padding:1px;cursor:pointer;clip-path:var(--sc-corner-10)"><div style="display:flex;align-items:stretch;background:var(--sc-card-bg);clip-path:var(--sc-corner-10)">
+      <div style="display:flex;align-items:center;gap:7px;padding:8px 12px;border-right:1px solid #232939">
+        <span style="width:6px;height:6px;background:{{ phaseColor }};box-shadow:0 0 8px {{ phaseColor }};animation:scPulse 2s infinite;flex:0 0 auto"></span>
+        <span style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.06em;color:#e9ecf2">R{{ round }}</span>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 12px;min-width:0">
+        <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5">Phase</span>
+        <span style="font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:{{ phaseColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ phaseName }}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-left:1px solid #232939">
+        <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;color:#8a91a5">VP</span>
+        <span style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;color:#5fd98d">{{ vpYou }}</span>
+        <span style="color:#5b6275;font-size:12px">:</span>
+        <span style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;color:#c8cede">{{ vpFoe }}</span>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="margin-left:2px"><path d="M4 6l4 4 4-4" stroke="#8a91a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </div>
+    </div></div>
+
+    <!-- tabs -->
+    <div style="display:flex;margin:0 14px 10px;background:var(--sc-card-bg);border:1px solid var(--sc-border-neutral);padding:3px;gap:2px">
+      <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3">
+        <button onClick="{{ tb.onSelect }}" style="flex:1;height:38px;border:none;background:{{ tb.bg }};color:{{ tb.fg }};font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer">{{ tb.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ============ SETUP TAB ============ -->
+  <sc-if value="{{ tabIsSetup }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:14px">
+      <!-- battle size -->
+      <div style="display:flex;align-items:center;gap:8px;padding:0 2px 10px">
+        <span style="width:8px;height:8px;background:#35c76b;clip-path:var(--sc-diamond)"></span>
+        <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#35c76b">Battle Size</span>
+        <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <sc-for list="{{ sizes }}" as="sz" hint-placeholder-count="2">
+          <button onClick="{{ sz.onSelect }}" style="padding:12px;text-align:left;background:{{ sz.bg }};border:1px solid {{ sz.bd }};color:#e9ecf2;cursor:pointer;clip-path:var(--sc-corner-10)">
+            <span style="display:block;font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:{{ sz.fg }}">{{ sz.name }}</span>
+            <span style="display:block;font-size:11.5px;color:#8a91a5;margin-top:2px">{{ sz.desc }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--sc-card-bg);border:1px solid #232939;margin-bottom:18px">
+        <div style="padding:8px;text-align:center;border-right:1px solid #1c2130">
+          <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#8a91a5">Minerals</div>
+          <div style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;color:#f2c14e">{{ sumMinerals }}</div>
+        </div>
+        <div style="padding:8px;text-align:center;border-right:1px solid #1c2130">
+          <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#8a91a5">Vespene</div>
+          <div style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;color:#38d3e8">{{ sumGas }}</div>
+        </div>
+        <div style="padding:8px;text-align:center">
+          <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#8a91a5">Table</div>
+          <div style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;color:#c8cede">{{ sumBoard }}</div>
+        </div>
+      </div>
+
+      <!-- current op -->
+      <div style="display:flex;align-items:center;gap:8px;padding:0 2px 10px">
+        <span style="width:8px;height:8px;background:#35c76b;clip-path:var(--sc-diamond)"></span>
+        <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#35c76b">Current Operation</span>
+        <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+      </div>
+      <div style="display:grid;gap:8px;margin-bottom:12px">
+        <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="2">
+          <div style="background:var(--sc-card-bg);border:1px solid {{ sl.bd }};clip-path:var(--sc-corner-10)">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 12px;min-height:44px">
+              <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:3px 7px;background:{{ sl.tagBg }};color:{{ sl.tagFg }};flex:0 0 auto">{{ sl.kind }}</span>
+              <sc-if value="{{ sl.hasPick }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ sl.onOpen }}" style="flex:1;min-width:0;background:none;border:none;color:#e9ecf2;cursor:pointer;text-align:left;padding:0">
+                  <span style="display:block;font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.03em">{{ sl.name }}</span>
+                  <span style="display:block;font-size:12px;color:#8a91a5">{{ sl.meta }}</span>
+                </button>
+                <button onClick="{{ sl.onClear }}" aria-label="Clear" style="width:36px;height:36px;flex:0 0 auto;display:grid;place-items:center;background:rgba(240,74,74,0.08);border:1px solid rgba(240,74,74,0.3);color:#f08a8a;font-size:15px;cursor:pointer">×</button>
+              </sc-if>
+              <sc-if value="{{ sl.isEmpty }}" hint-placeholder-val="{{ true }}">
+                <span style="flex:1;font-size:13px;color:#5b6275">{{ sl.emptyLabel }}</span>
+              </sc-if>
+              <button onClick="{{ sl.onRandom }}" style="height:36px;padding:0 12px;flex:0 0 auto;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer">⚄ Random</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onClick="{{ randomBoth }}" style="flex:1;height:46px;background:rgba(53,199,107,0.14);border:1px solid rgba(53,199,107,0.45);color:#8fe6ae;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;clip-path:var(--sc-corner-9)">⚄ Randomize Op</button>
+        <sc-if value="{{ hasAnyPick }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openExport }}" style="height:46px;padding:0 16px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer">Briefing</button>
+          <button onClick="{{ printBattleSheet }}" style="height:46px;padding:0 16px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer">Print Sheet</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ MISSIONS TAB ============ -->
+  <sc-if value="{{ tabIsMissions }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px">
+      <div style="font-size:12.5px;color:#8a91a5;margin:0 2px 12px">{{ missionCount }} missions for {{ sizeName }} · tap the ring to select</div>
+      <div style="display:grid;gap:10px">
+        <sc-for list="{{ missions }}" as="mi" hint-placeholder-count="3">
+          <div style="background:var(--sc-card-bg);border:1px solid {{ mi.bd }};clip-path:var(--sc-corner-12)">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;min-height:44px">
+              <button onClick="{{ mi.onSelect }}" aria-label="Select mission" style="width:26px;height:26px;flex:0 0 auto;display:grid;place-items:center;background:none;border:1px solid {{ mi.dotBd }};border-radius:50%;cursor:pointer;padding:0"><span style="width:12px;height:12px;border-radius:50%;background:{{ mi.dot }}"></span></button>
+              <div onClick="{{ mi.onToggle }}" role="button" style="flex:1;min-width:0;cursor:pointer">
+                <div style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2">{{ mi.name }}</div>
+                <div style="font-size:12px;color:#8a91a5">{{ mi.meta }}</div>
+              </div>
+              <div style="display:flex;gap:5px;flex:0 0 auto">
+                <span style="text-align:center;padding:3px 8px;background:#171b28;border:1px solid #232939">
+                  <span style="display:block;font-family:Rajdhani,sans-serif;font-size:8px;font-weight:700;letter-spacing:0.12em;color:#5b6275">SUPPLY</span>
+                  <span style="display:block;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#c8cede;line-height:1.1">{{ mi.supply }}</span>
+                </span>
+                <span style="text-align:center;padding:3px 8px;background:#171b28;border:1px solid #232939">
+                  <span style="display:block;font-family:Rajdhani,sans-serif;font-size:8px;font-weight:700;letter-spacing:0.12em;color:#5b6275">/ROUND</span>
+                  <span style="display:block;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#c8cede;line-height:1.1">{{ mi.perRound }}</span>
+                </span>
+              </div>
+              <svg onClick="{{ mi.onToggle }}" width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex:0 0 auto;cursor:pointer;transform:rotate({{ mi.chev }}deg);transition:transform 0.18s"><path d="M6 4l4 4-4 4" stroke="#8a91a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <sc-if value="{{ mi.expanded }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid #1f2430;padding:12px;display:grid;gap:10px">
+                <div>
+                  <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8a91a5;margin-bottom:5px">Parameters</div>
+                  <div style="display:grid;gap:4px">
+                    <sc-for list="{{ mi.parameters }}" as="pp" hint-placeholder-count="2">
+                      <div style="display:flex;gap:8px;font-size:13px;color:#c3c9d8;line-height:1.5"><span style="width:5px;height:5px;background:#8a91a5;flex:0 0 auto;margin-top:7px;clip-path:var(--sc-diamond)"></span><span>{{ pp }}</span></div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5fd98d;margin-bottom:5px">Scoring</div>
+                  <div style="display:grid;gap:4px">
+                    <sc-for list="{{ mi.scoring }}" as="sc" hint-placeholder-count="2">
+                      <div style="display:flex;gap:8px;font-size:13px;color:#c3c9d8;line-height:1.5"><span style="width:5px;height:5px;background:#35c76b;flex:0 0 auto;margin-top:7px;clip-path:var(--sc-diamond)"></span><span>{{ sc }}</span></div>
+                    </sc-for>
+                  </div>
+                </div>
+                <sc-for list="{{ mi.additional }}" as="ar" hint-placeholder-count="1">
+                  <div style="padding:9px 10px;background:#171b28;border:1px solid #232939">
+                    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
+                      <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 6px;background:{{ ar.phBg }};color:{{ ar.phFg }}">{{ ar.phase }}</span>
+                      <span style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#e9ecf2">{{ ar.name }}</span>
+                    </div>
+                    <div style="font-size:13px;color:#b9bfd0;line-height:1.55">{{ ar.description }}</div>
+                  </div>
+                </sc-for>
+                <div style="display:flex;gap:9px;padding:10px 12px;background:rgba(242,193,78,0.06);border:1px solid rgba(242,193,78,0.25)">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex:0 0 auto;margin-top:2px"><path d="M8 1.5l1.8 4.1 4.4.4-3.3 3 1 4.4L8 11l-3.9 2.4 1-4.4-3.3-3 4.4-.4L8 1.5z" stroke="#f2c14e" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+                  <span style="font-size:13px;color:#e6d9b3;line-height:1.5"><strong style="color:#f2c14e">Sudden death:</strong> {{ mi.special }}</span>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ MAPS TAB ============ -->
+  <sc-if value="{{ tabIsMaps }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px">
+      <div style="font-size:12.5px;color:#8a91a5;margin:0 2px 12px">{{ mapCount }} deployment maps for {{ sizeName }} · tap the ring to select</div>
+      <div style="display:grid;gap:10px">
+        <sc-for list="{{ maps }}" as="mp" hint-placeholder-count="3">
+          <div style="background:var(--sc-card-bg);border:1px solid {{ mp.bd }};clip-path:var(--sc-corner-12)">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px;min-height:44px">
+              <button onClick="{{ mp.onSelect }}" aria-label="Select map" style="width:26px;height:26px;flex:0 0 auto;display:grid;place-items:center;background:none;border:1px solid {{ mp.dotBd }};border-radius:50%;cursor:pointer;padding:0"><span style="width:12px;height:12px;border-radius:50%;background:{{ mp.dot }}"></span></button>
+              <div onClick="{{ mp.onToggle }}" role="button" style="flex:1;min-width:0;cursor:pointer">
+                <div style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2">{{ mp.name }}</div>
+                <div style="font-size:12px;color:#8a91a5">{{ mp.meta }}</div>
+              </div>
+              <svg onClick="{{ mp.onToggle }}" width="14" height="14" viewBox="0 0 16 16" fill="none" style="flex:0 0 auto;cursor:pointer;transform:rotate({{ mp.chev }}deg);transition:transform 0.18s"><path d="M6 4l4 4-4 4" stroke="#8a91a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <sc-if value="{{ mp.expanded }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid #1f2430;padding:12px;display:grid;gap:10px">
+                <div>{{ mp.svgEl }}</div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap">
+                  <span style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#8a91a5"><span style="width:10px;height:10px;background:rgba(240,90,90,0.35);border:1px solid #f05a5a"></span>Red deploy</span>
+                  <span style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#8a91a5"><span style="width:10px;height:10px;background:rgba(79,141,249,0.35);border:1px solid #4f8df9"></span>Blue deploy</span>
+                  <span style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#8a91a5"><span style="width:11px;height:11px;border-radius:50%;background:#f2c14e;display:inline-grid;place-items:center;color:#0a0c11;font-size:8px;font-weight:700">5</span>Center marker</span>
+                </div>
+                <sc-for list="{{ mp.setups }}" as="dz" hint-placeholder-count="2">
+                  <div style="padding:9px 10px;background:{{ dz.bg }};border:1px solid {{ dz.bd }}">
+                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+                      <span style="width:8px;height:8px;background:{{ dz.color }};clip-path:var(--sc-diamond)"></span>
+                      <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:{{ dz.color }}">{{ dz.title }}</span>
+                    </div>
+                    <div style="display:grid;gap:3px">
+                      <sc-for list="{{ dz.steps }}" as="stp" hint-placeholder-count="3">
+                        <div style="font-size:12.5px;color:#b9bfd0;line-height:1.5">{{ stp }}</div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+                <div>
+                  <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8a91a5;margin-bottom:5px">Marker Placement</div>
+                  <div style="display:grid;gap:4px">
+                    <sc-for list="{{ mp.markerRows }}" as="mr" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#c3c9d8">
+                        <span style="width:18px;height:18px;flex:0 0 auto;display:grid;place-items:center;border-radius:50%;background:{{ mr.bg }};color:{{ mr.fg }};font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;border:1px solid {{ mr.bd }}">{{ mr.num }}</span>
+                        <span>{{ mr.desc }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="font-size:12.5px;color:#8a91a5;line-height:1.55;font-style:italic">{{ mp.notes }}</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ BRIEFING (EXPORT) SHEET ============ -->
+  <sc-if value="{{ exportOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeExport }}" style="position:fixed;inset:0;z-index:300;background:rgba(4,5,8,0.65);animation:scFade 0.15s ease"></div>
+    <div style="position:fixed;left:0;right:0;bottom:0;z-index:310;display:flex;justify-content:center;pointer-events:none">
+      <div style="width:100%;max-width:480px;pointer-events:auto;background:#141824;border:1px solid rgba(53,199,107,0.4);border-bottom:none;padding:16px 16px calc(20px + env(safe-area-inset-bottom));animation:scSheetUp 0.2s ease;clip-path:var(--sc-corner-14-top)">
+        <div style="width:36px;height:3px;background:var(--sc-border-input);margin:0 auto 12px;border-radius:2px"></div>
+        <div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8fe6ae;margin-bottom:10px">Battle Briefing</div>
+        <textarea readOnly value="{{ exportText }}" style="width:100%;height:220px;background:#0d1017;border:1px solid #232939;color:#c8cede;font-family:ui-monospace,monospace;font-size:11px;line-height:1.5;padding:10px;resize:none"></textarea>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button onClick="{{ copyExport }}" style="flex:1;height:44px;background:rgba(53,199,107,0.14);border:1px solid rgba(53,199,107,0.45);color:#8fe6ae;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">{{ copyLabel }}</button>
+          <button onClick="{{ closeExport }}" style="flex:1;height:44px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">Close</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ ROUND TRACKER SHEET ============ -->
+  <sc-if value="{{ trackerOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeTracker }}" style="position:fixed;inset:0;z-index:300;background:rgba(4,5,8,0.65);animation:scFade 0.15s ease"></div>
+    <div style="position:fixed;left:0;right:0;top:0;z-index:310;display:flex;justify-content:center;pointer-events:none">
+      <div style="width:100%;max-width:480px;pointer-events:auto;background:#141824;border:1px solid rgba(53,199,107,0.4);border-top:none;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;animation:scSheetDown 0.2s ease;clip-path:var(--sc-corner-14-bottom)">
+        <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5;margin-bottom:12px">Round Tracker</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5">Round</span>
+            <button onClick="{{ roundDown }}" style="width:34px;height:34px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">−</button>
+            <span style="font-family:'Chakra Petch',sans-serif;font-size:20px;font-weight:700;color:#e9ecf2;min-width:24px;text-align:center">{{ round }}</span>
+            <button onClick="{{ roundUp }}" style="width:34px;height:34px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">+</button>
+          </div>
+          <button onClick="{{ nextPhase }}" style="height:34px;padding:0 14px;background:rgba(53,199,107,0.14);border:1px solid rgba(53,199,107,0.45);color:#8fe6ae;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;clip-path:var(--sc-corner-8)">Next Phase ▸</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
+          <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="4">
+            <button onClick="{{ ph.onSelect }}" style="height:38px;background:{{ ph.bg }};border:1px solid {{ ph.bd }};color:{{ ph.fg }};font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">{{ ph.short }}</button>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px;background:#161a27;border:1px solid var(--sc-border-input)">
+            <button onClick="{{ vpYouDown }}" style="width:38px;height:38px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">−</button>
+            <div style="text-align:center">
+              <div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5fd98d">You</div>
+              <div style="font-family:'Chakra Petch',sans-serif;font-size:22px;font-weight:700;color:#e9ecf2;line-height:1">{{ vpYou }}</div>
+            </div>
+            <button onClick="{{ vpYouUp }}" style="width:38px;height:38px;background:rgba(53,199,107,0.12);border:1px solid rgba(53,199,107,0.4);color:#8fe6ae;font-size:16px;cursor:pointer">+</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px;background:#161a27;border:1px solid var(--sc-border-input)">
+            <button onClick="{{ vpFoeDown }}" style="width:38px;height:38px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">−</button>
+            <div style="text-align:center">
+              <div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8a91a5">Enemy</div>
+              <div style="font-family:'Chakra Petch',sans-serif;font-size:22px;font-weight:700;color:#e9ecf2;line-height:1">{{ vpFoe }}</div>
+            </div>
+            <button onClick="{{ vpFoeUp }}" style="width:38px;height:38px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">+</button>
+          </div>
+        </div>
+        <button onClick="{{ closeTracker }}" style="margin-top:12px;width:100%;height:44px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">Done</button>
+        <div style="width:36px;height:3px;background:var(--sc-border-input);margin:14px auto 0;border-radius:2px"></div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 420, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = {
+    ready: false,
+    trackerOpen: false,
+    play: { round: 1, phase: 0, vpYou: 0, vpFoe: 0 },
+    battleSize: 'standard',
+    selectedMissionId: null,
+    selectedMapId: null,
+    activeTab: 'setup',
+    expM: {}, expMap: {},
+    exportOpen: false,
+    copied: false
+  };
+
+  componentDidMount() {
+    this._poll = setInterval(() => {
+      if (window.SCTMG_MISSIONS) {
+        clearInterval(this._poll);
+        try {
+          const play = JSON.parse(localStorage.getItem('sctmg_play') || 'null');
+          if (play) this.state.play = { round: play.round || 1, phase: play.phase || 0, vpYou: play.vpYou || 0, vpFoe: play.vpFoe || 0 };
+          const saved = JSON.parse(localStorage.getItem('starcraft_tmg_missions_builder_state_v1') || 'null');
+          if (saved) {
+            if (saved.battleSize) this.state.battleSize = saved.battleSize;
+            this.state.selectedMissionId = saved.selectedMissionId || null;
+            this.state.selectedMapId = saved.selectedMapId || null;
+            if (saved.activeTab && ['setup', 'missions', 'maps'].includes(saved.activeTab)) this.state.activeTab = saved.activeTab;
+          }
+          // an explicit ?tab= link (e.g. from the Battle tab badge) overrides whatever tab was last left open
+          const tabParam = new URLSearchParams(location.search).get('tab');
+          if (tabParam && ['setup', 'missions', 'maps'].includes(tabParam)) this.state.activeTab = tabParam;
+        } catch (e) {}
+        this.setState({ ready: true });
+      }
+    }, 40);
+  }
+  componentWillUnmount() { clearInterval(this._poll); }
+
+  D() { return window.SCTMG_MISSIONS; }
+  savePlay() { try { localStorage.setItem('sctmg_play', JSON.stringify(this.state.play)); } catch (e) {} }
+  save() {
+    try {
+      const st = this.state;
+      localStorage.setItem('starcraft_tmg_missions_builder_state_v1', JSON.stringify({
+        battleSize: st.battleSize, selectedMissionId: st.selectedMissionId, selectedMapId: st.selectedMapId, activeTab: st.activeTab
+      }));
+    } catch (e) {}
+    // mission + map selection are shared with the Army screens' Battle tab + Army Sheet, so merge them into the shared play state
+    try {
+      const play = JSON.parse(localStorage.getItem('sctmg_play') || 'null') || { round: 1, phase: 0, vpYou: 0, vpFoe: 0 };
+      localStorage.setItem('sctmg_play', JSON.stringify({ ...play, missionId: this.state.selectedMissionId, mapId: this.state.selectedMapId }));
+    } catch (e) {}
+  }
+
+  hexRgb(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+  }
+
+  activeMissions() { return this.D().MISSIONS.filter(m => m.type.toLowerCase() === this.state.battleSize); }
+  activeMaps() { return this.D().MAPS.filter(m => m.type.toLowerCase() === this.state.battleSize); }
+
+  setSize(size) {
+    this.setState(st => {
+      const next = { battleSize: size };
+      const m = this.D().MISSIONS.find(x => x.id === st.selectedMissionId);
+      const mp = this.D().MAPS.find(x => x.id === st.selectedMapId);
+      if (m && m.type.toLowerCase() !== size) next.selectedMissionId = null;
+      if (mp && mp.type.toLowerCase() !== size) next.selectedMapId = null;
+      return next;
+    }, () => this.save());
+  }
+  randomMission() {
+    const pool = this.activeMissions();
+    if (!pool.length) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    this.setState({ selectedMissionId: pick.id }, () => this.save());
+  }
+  randomMap() {
+    const pool = this.activeMaps();
+    if (!pool.length) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    this.setState({ selectedMapId: pick.id }, () => this.save());
+  }
+
+  mapSvg(map) {
+    const R = React.createElement;
+    const scale = 6, w = map.width * scale, h = map.height * scale;
+    const kids = [R('rect', { key: 'bg', x: 0, y: 0, width: w, height: h, fill: '#0d1017' })];
+    for (let i = 0; i <= Math.floor(map.width / 6); i++) kids.push(R('line', { key: 'v' + i, x1: i * 36, y1: 0, x2: i * 36, y2: h, stroke: '#1c2130', strokeWidth: 1, strokeDasharray: '2,3' }));
+    for (let i = 0; i <= Math.floor(map.height / 6); i++) kids.push(R('line', { key: 'h' + i, x1: 0, y1: i * 36, x2: w, y2: i * 36, stroke: '#1c2130', strokeWidth: 1, strokeDasharray: '2,3' }));
+    (map.redZones || []).forEach((z, i) => kids.push(R('rect', { key: 'r' + i, x: z.x * scale, y: z.y * scale, width: z.w * scale, height: z.h * scale, fill: 'rgba(240,90,90,0.22)', stroke: '#f05a5a', strokeWidth: 1.5 })));
+    (map.blueZones || []).forEach((z, i) => kids.push(R('rect', { key: 'b' + i, x: z.x * scale, y: z.y * scale, width: z.w * scale, height: z.h * scale, fill: 'rgba(79,141,249,0.22)', stroke: '#4f8df9', strokeWidth: 1.5 })));
+    (map.markers || []).forEach((m, i) => {
+      const cx = m.x * scale, cy = m.y * scale, center = m.num === 5;
+      kids.push(R('circle', { key: 'mc' + i, cx, cy, r: 12, fill: center ? '#f2c14e' : '#1a1f2e', stroke: center ? '#f2c14e' : '#c8cede', strokeWidth: 1.5 }));
+      kids.push(R('text', { key: 'mt' + i, x: cx, y: cy + 1, textAnchor: 'middle', dominantBaseline: 'middle', fill: center ? '#0a0c11' : '#e9ecf2', fontSize: 13, fontWeight: 700, fontFamily: 'Rajdhani,sans-serif' }, String(m.num)));
+    });
+    kids.push(R('rect', { key: 'frame', x: 0, y: 0, width: w, height: h, fill: 'none', stroke: '#3a4154', strokeWidth: 2 }));
+    return R('svg', { viewBox: '0 0 ' + w + ' ' + h, style: { width: '100%', height: 'auto', display: 'block', border: '1px solid #232939' } }, kids);
+  }
+
+  exportText() {
+    const st = this.state;
+    const m = this.D().MISSIONS.find(x => x.id === st.selectedMissionId);
+    const mp = this.D().MAPS.find(x => x.id === st.selectedMapId);
+    const std = st.battleSize === 'standard';
+    let t = '==============================\nSTARCRAFT TMG — BATTLE SETUP\n==============================\n\n';
+    t += 'Battle Size: ' + (std ? 'STANDARD (54" x 36")' : 'SKIRMISH (36" x 36")') + '\nMinerals: ' + (std ? '2,000' : '1,000') + '\nGas: ' + (std ? '200' : '100') + '\n\n';
+    if (m) {
+      t += 'MISSION: ' + m.name + '\nGame Length: ' + m.gameLength + ' Rounds · Supply ' + m.supply + ' (+' + m.perRound + '/round)\n\nPARAMETERS:\n';
+      m.parameters.forEach(p => t += '• ' + p + '\n');
+      t += '\nSCORING:\n';
+      m.scoring.forEach(s => t += '• ' + s + '\n');
+      if (m.additionalRules) { t += '\nADDITIONAL RULES:\n'; m.additionalRules.forEach(r => t += '• ' + r.name + ' (' + r.phase + '): ' + r.description + '\n'); }
+      t += '\nSPECIAL: ' + m.special + '\n\n';
+    } else t += 'MISSION: Not selected\n\n';
+    if (mp) {
+      t += 'MAP: ' + mp.name + ' (' + mp.size + ')\n';
+      if (mp.redSetup) { t += '\nRED — ' + mp.redSetup.title + ':\n'; mp.redSetup.instructions.forEach(i => t += '• ' + i + '\n'); }
+      if (mp.blueSetup) { t += '\nBLUE — ' + mp.blueSetup.title + ':\n'; mp.blueSetup.instructions.forEach(i => t += '• ' + i + '\n'); }
+      if (mp.markerSetup) { t += '\nMARKERS:\n'; mp.markerSetup.slice().sort((a, b) => a.num - b.num).forEach(x => t += '• Marker ' + x.num + ': ' + x.desc + '\n'); }
+      t += '\nNOTES: ' + mp.notes + '\n';
+    } else t += 'MAP: Not selected\n';
+    return t;
+  }
+
+  // ---------- print battle sheet (mirrors Army Sheet's print styling) ----------
+  printEsc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  printMapSvgString(map) {
+    const scale = 6, w = map.width * scale, h = map.height * scale;
+    let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;display:block;border:1px solid #d0d0d0">';
+    svg += '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="#fff"/>';
+    for (let i = 0; i <= Math.floor(map.width / 6); i++) svg += '<line x1="' + (i * 36) + '" y1="0" x2="' + (i * 36) + '" y2="' + h + '" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="2,3"/>';
+    for (let i = 0; i <= Math.floor(map.height / 6); i++) svg += '<line x1="0" y1="' + (i * 36) + '" x2="' + w + '" y2="' + (i * 36) + '" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="2,3"/>';
+    (map.redZones || []).forEach(z => svg += '<rect x="' + (z.x * scale) + '" y="' + (z.y * scale) + '" width="' + (z.w * scale) + '" height="' + (z.h * scale) + '" fill="rgba(220,38,38,0.16)" stroke="#dc2626" stroke-width="1.5"/>');
+    (map.blueZones || []).forEach(z => svg += '<rect x="' + (z.x * scale) + '" y="' + (z.y * scale) + '" width="' + (z.w * scale) + '" height="' + (z.h * scale) + '" fill="rgba(37,99,235,0.16)" stroke="#2563eb" stroke-width="1.5"/>');
+    (map.markers || []).forEach(m => {
+      const cx = m.x * scale, cy = m.y * scale, center = m.num === 5;
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="12" fill="' + (center ? '#f2c14e' : '#fff') + '" stroke="' + (center ? '#c9971f' : '#1a1a1a') + '" stroke-width="1.5"/>';
+      svg += '<text x="' + cx + '" y="' + (cy + 1) + '" text-anchor="middle" dominant-baseline="middle" fill="#1a1a1a" font-size="13" font-weight="700" font-family="Rajdhani,sans-serif">' + m.num + '</text>';
+    });
+    svg += '<rect x="0" y="0" width="' + w + '" height="' + h + '" fill="none" stroke="#1a1a1a" stroke-width="2"/>';
+    svg += '</svg>';
+    return svg;
+  }
+  printMissionHtml(m) {
+    if (!m) return '<div style="color:var(--faint);font-style:italic;padding:8px 0">No mission selected.</div>';
+    let html = '<div class="brief-meta">' + this.printEsc(m.gameLength) + ' Rounds &middot; Supply ' + this.printEsc(m.supply) + ' (+' + this.printEsc(m.perRound) + '/round) &middot; ' + this.printEsc(m.type) + '</div>';
+    html += '<div class="section-label">Parameters</div><ul class="brief-list">' + m.parameters.map(p => '<li>' + this.printEsc(p) + '</li>').join('') + '</ul>';
+    html += '<div class="section-label" style="color:var(--accent)">Scoring</div><ul class="brief-list">' + m.scoring.map(s => '<li>' + this.printEsc(s) + '</li>').join('') + '</ul>';
+    if (m.additionalRules && m.additionalRules.length) {
+      html += '<div class="section-label">Additional Rules</div><table class="sheet-table"><tr><th style="width:34%">Rule</th><th>Effect</th></tr>' +
+        m.additionalRules.map(r => {
+          const phCls = (r.phase || '').replace(' Phase', '').toLowerCase();
+          return '<tr><td>' + this.printEsc(r.name) + ' <span class="phase-tag ' + phCls + '">' + this.printEsc((r.phase || '').replace(' Phase', '')) + '</span></td>' +
+            '<td class="left">' + this.printEsc(r.description) + '</td></tr>';
+        }).join('') + '</table>';
+    }
+    html += '<div class="special-box"><strong>Sudden Death:</strong> ' + this.printEsc(m.special) + '</div>';
+    return html;
+  }
+  printMapHtml(mp) {
+    if (!mp) return '<div style="color:var(--faint);font-style:italic;padding:8px 0">No map selected.</div>';
+    let html = '<div class="brief-meta">' + this.printEsc(mp.size) + ' &middot; ' + this.printEsc(mp.type) + '</div>';
+    html += '<div class="map-print-wrap">' + this.printMapSvgString(mp) + '</div>';
+    html += '<div class="map-legend"><span class="legend-item"><span class="legend-swatch red"></span>Red deploy</span><span class="legend-item"><span class="legend-swatch blue"></span>Blue deploy</span><span class="legend-item"><span class="legend-swatch marker">5</span>Center marker</span></div>';
+    if (mp.redSetup) html += '<div class="section-label" style="color:#b91c1c">Red — ' + this.printEsc(mp.redSetup.title) + '</div><ul class="brief-list">' + mp.redSetup.instructions.map(i => '<li>' + this.printEsc(i) + '</li>').join('') + '</ul>';
+    if (mp.blueSetup) html += '<div class="section-label" style="color:#1d4ed8">Blue — ' + this.printEsc(mp.blueSetup.title) + '</div><ul class="brief-list">' + mp.blueSetup.instructions.map(i => '<li>' + this.printEsc(i) + '</li>').join('') + '</ul>';
+    if (mp.markerSetup && mp.markerSetup.length) {
+      html += '<div class="section-label">Marker Placement</div><table class="sheet-table"><tr><th style="width:12%">#</th><th>Description</th></tr>' +
+        mp.markerSetup.slice().sort((a, b) => a.num - b.num).map(x => '<tr><td>' + this.printEsc(x.num) + '</td><td class="left">' + this.printEsc(x.desc) + '</td></tr>').join('') + '</table>';
+    }
+    if (mp.notes) html += '<div class="notes-italic">' + this.printEsc(mp.notes) + '</div>';
+    return html;
+  }
+  printSheetCss() {
+    return "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap');" +
+      ":root{--bg:#fff;--text:#1a1a1a;--muted:#5a5a5a;--faint:#9a9a9a;--border:#d0d0d0;--border-light:#e8e8e8;--header-bg:#1a1a1a;--header-text:#fff;--accent:#4a7c3f;--accent-light:#e8f0e6;--phase-assault:#b45309;--phase-combat:#991b1b;--phase-any:#4338ca;--phase-movement:#0e7490;--phase-scoring:#047857}" +
+      "*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Source Sans 3',sans-serif;font-size:9.5pt;line-height:1.35;color:var(--text);background:var(--bg);padding:0.4in}" +
+      "@media print{body{padding:0}.section-header{break-after:avoid}.map-print-wrap{break-inside:avoid}}" +
+      ".page-header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--header-bg);padding-bottom:6px;margin-bottom:14px}" +
+      ".page-header h1{font-size:16pt;font-weight:700;letter-spacing:-0.02em;text-transform:uppercase}" +
+      ".page-header .faction-tag{font-family:'Source Code Pro',monospace;font-size:8pt;color:var(--muted);letter-spacing:0.08em}" +
+      ".section-header{border-bottom:2px solid #7c3aed;display:flex;justify-content:space-between;align-items:baseline;padding-bottom:4px;margin:18px 0 8px}" +
+      ".section-header h2{font-size:13pt;font-weight:700;text-transform:uppercase}" +
+      ".section-header .faction-tag{font-family:'Source Code Pro',monospace;font-size:8pt;color:var(--muted)}" +
+      ".section-label{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);border-bottom:1px solid var(--border-light);padding-bottom:2px;margin:10px 0 4px}" +
+      ".section-label:first-child{margin-top:0}" +
+      ".sheet-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin:2px 0}" +
+      ".sheet-table th{font-size:6.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--faint);text-align:center;padding:2px 3px;border-bottom:1px solid var(--border)}" +
+      ".sheet-table th:first-child{text-align:left}" +
+      ".sheet-table td{text-align:center;padding:3px;border-bottom:1px solid var(--border-light);font-family:'Source Code Pro',monospace;font-size:8pt}" +
+      ".sheet-table td:first-child{text-align:left;font-family:'Source Sans 3',sans-serif;font-weight:600;font-size:8.5pt}" +
+      ".sheet-table td.left{text-align:left;font-family:'Source Sans 3',sans-serif;color:var(--muted)}" +
+      ".sheet-table tr:last-child td{border-bottom:none}" +
+      ".phase-tag{font-family:'Source Sans 3',sans-serif;font-size:6pt;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:0 4px;border-radius:2px;display:inline-block;margin-left:4px;vertical-align:middle}" +
+      ".phase-tag.assault{background:#fef3c7;color:var(--phase-assault)}.phase-tag.combat{background:#fee2e2;color:var(--phase-combat)}" +
+      ".phase-tag.movement{background:#d5f5f6;color:var(--phase-movement)}.phase-tag.any{background:#e0e7ff;color:var(--phase-any)}.phase-tag.scoring{background:#d1fae5;color:var(--phase-scoring)}" +
+      ".brief-meta{font-family:'Source Code Pro',monospace;font-size:8pt;color:var(--muted);margin-bottom:4px}" +
+      ".brief-list{margin:2px 0 8px 18px;font-size:9pt;line-height:1.5}.brief-list li{margin-bottom:2px}" +
+      ".special-box{padding:6px 10px;background:#fff7e6;border:1px solid #f2c14e;border-radius:2px;font-size:8.5pt;margin-top:8px}" +
+      ".map-print-wrap{max-width:420px;margin:6px 0}" +
+      ".map-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:8pt;color:var(--muted);margin:6px 0 10px}" +
+      ".legend-item{display:flex;align-items:center;gap:5px}" +
+      ".legend-swatch{width:11px;height:11px;display:inline-block;border-radius:2px}" +
+      ".legend-swatch.red{background:rgba(220,38,38,0.2);border:1px solid #dc2626}" +
+      ".legend-swatch.blue{background:rgba(37,99,235,0.2);border:1px solid #2563eb}" +
+      ".legend-swatch.marker{width:15px;height:15px;border-radius:50%;background:#f2c14e;color:#1a1a1a;font-size:7pt;font-weight:700;display:inline-flex;align-items:center;justify-content:center;border:1px solid #c9971f}" +
+      ".notes-italic{font-size:8.5pt;color:var(--muted);font-style:italic;margin-top:6px;line-height:1.5}";
+  }
+  exportBattleSheet() {
+    const st = this.state;
+    const D = this.D();
+    const m = D.MISSIONS.find(x => x.id === st.selectedMissionId) || null;
+    const mp = D.MAPS.find(x => x.id === st.selectedMapId) || null;
+    const std = st.battleSize === 'standard';
+    const html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+      '<title>SC:TMG Battle Sheet</title><style>' + this.printSheetCss() + '</style></head><body>' +
+      '<div class="page-header"><h1>Battle Sheet</h1><span class="faction-tag">SC:TMG · ' + (std ? 'STANDARD' : 'SKIRMISH') + ' · ' + (std ? '2,000 MIN / 200 GAS' : '1,000 MIN / 100 GAS') + '</span></div>' +
+      '<div class="section-header"><h2>Mission' + (m ? ': ' + this.printEsc(m.name.toUpperCase()) : '') + '</h2><span class="faction-tag">' + (m ? this.printEsc(m.gameLength) + ' rounds' : 'not selected') + '</span></div>' +
+      this.printMissionHtml(m) +
+      '<div class="section-header" style="border-bottom-color:#4f8df9"><h2>Map' + (mp ? ': ' + this.printEsc(mp.name.toUpperCase()) : '') + '</h2><span class="faction-tag">' + (mp ? this.printEsc(mp.size) : 'not selected') + '</span></div>' +
+      this.printMapHtml(mp) +
+      '</body></html>';
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
+  renderVals() {
+    const st = this.state;
+    if (!st.ready) return { ready: false };
+    const D = this.D();
+    const phDefs = [
+      { name: 'Movement', short: 'Move', color: '#4f8df9' },
+      { name: 'Assault', short: 'Assault', color: '#f9822f' },
+      { name: 'Combat', short: 'Combat', color: '#f04a4a' },
+      { name: 'Scoring', short: 'Score', color: '#35c76b' }
+    ];
+    const ph = phDefs[st.play.phase] || phDefs[0];
+    const std = st.battleSize === 'standard';
+    const selM = D.MISSIONS.find(x => x.id === st.selectedMissionId) || null;
+    const selMap = D.MAPS.find(x => x.id === st.selectedMapId) || null;
+
+    const phaseBadge = (label) => {
+      const map = { 'Movement Phase': '#4f8df9', 'Assault Phase': '#f9822f', 'Combat Phase': '#f04a4a', 'Scoring Phase': '#35c76b' };
+      const c = map[label] || '#8a91a5';
+      return { phBg: 'rgba(' + this.hexRgb(c) + ',0.16)', phFg: c };
+    };
+
+    const missions = this.activeMissions().map(m => {
+      const sel = m.id === st.selectedMissionId;
+      const expanded = !!st.expM[m.id];
+      return {
+        name: m.name, meta: m.gameLength + ' rounds · ' + m.type,
+        supply: m.supply, perRound: '+' + m.perRound,
+        parameters: m.parameters, scoring: m.scoring, special: m.special,
+        additional: (m.additionalRules || []).map(r => ({ ...r, ...phaseBadge(r.phase) })),
+        expanded, chev: expanded ? 90 : 0,
+        bd: sel ? 'rgba(53,199,107,0.5)' : (expanded ? '#3a4154' : 'var(--sc-border-neutral)'),
+        dot: sel ? '#35c76b' : 'transparent', dotBd: sel ? '#35c76b' : '#3a4154',
+        onSelect: (ev) => { ev.stopPropagation(); this.setState({ selectedMissionId: sel ? null : m.id }, () => this.save()); },
+        onToggle: () => this.setState(s => ({ expM: { ...s.expM, [m.id]: !s.expM[m.id] } }))
+      };
+    });
+
+    const maps = this.activeMaps().map(mp => {
+      const sel = mp.id === st.selectedMapId;
+      const expanded = !!st.expMap[mp.id];
+      const setups = [];
+      if (expanded && mp.redSetup) setups.push({ title: 'Red — ' + mp.redSetup.title, steps: mp.redSetup.instructions, color: '#f05a5a', bg: 'rgba(240,90,90,0.05)', bd: 'rgba(240,90,90,0.25)' });
+      if (expanded && mp.blueSetup) setups.push({ title: 'Blue — ' + mp.blueSetup.title, steps: mp.blueSetup.instructions, color: '#4f8df9', bg: 'rgba(79,141,249,0.05)', bd: 'rgba(79,141,249,0.25)' });
+      return {
+        name: mp.name, meta: mp.size + ' · ' + mp.type,
+        expanded, chev: expanded ? 90 : 0,
+        bd: sel ? 'rgba(53,199,107,0.5)' : (expanded ? '#3a4154' : 'var(--sc-border-neutral)'),
+        dot: sel ? '#35c76b' : 'transparent', dotBd: sel ? '#35c76b' : '#3a4154',
+        svgEl: expanded ? this.mapSvg(mp) : null,
+        setups,
+        markerRows: expanded ? (mp.markerSetup || []).slice().sort((a, b) => a.num - b.num).map(x => ({
+          num: x.num, desc: x.desc,
+          bg: x.num === 5 ? '#f2c14e' : '#1a1f2e', fg: x.num === 5 ? '#0a0c11' : '#c8cede', bd: x.num === 5 ? '#f2c14e' : '#3a4154'
+        })) : [],
+        notes: mp.notes,
+        onSelect: (ev) => { ev.stopPropagation(); this.setState({ selectedMapId: sel ? null : mp.id }, () => this.save()); },
+        onToggle: () => this.setState(s => ({ expMap: { ...s.expMap, [mp.id]: !s.expMap[mp.id] } }))
+      };
+    });
+
+    const slots = [
+      {
+        kind: 'Mission', tagBg: 'rgba(53,199,107,0.14)', tagFg: '#5fd98d',
+        hasPick: !!selM, isEmpty: !selM,
+        name: selM ? selM.name : '', meta: selM ? selM.gameLength + ' rounds · Supply ' + selM.supply + ' (+' + selM.perRound + '/rd)' : '',
+        emptyLabel: 'No mission — pick from the Missions tab or roll random',
+        bd: selM ? 'rgba(53,199,107,0.4)' : 'var(--sc-border-neutral)',
+        onOpen: () => this.setState(s => ({ activeTab: 'missions', expM: { ...s.expM, [selM.id]: true } }), () => this.save()),
+        onClear: (ev) => { ev.stopPropagation(); this.setState({ selectedMissionId: null }, () => this.save()); },
+        onRandom: (ev) => { ev.stopPropagation(); this.randomMission(); }
+      },
+      {
+        kind: 'Map', tagBg: 'rgba(79,141,249,0.14)', tagFg: '#8ec3fa',
+        hasPick: !!selMap, isEmpty: !selMap,
+        name: selMap ? selMap.name : '', meta: selMap ? selMap.size + ' · ' + selMap.type : '',
+        emptyLabel: 'No map — pick from the Maps tab or roll random',
+        bd: selMap ? 'rgba(79,141,249,0.4)' : 'var(--sc-border-neutral)',
+        onOpen: () => this.setState(s => ({ activeTab: 'maps', expMap: { ...s.expMap, [selMap.id]: true } }), () => this.save()),
+        onClear: (ev) => { ev.stopPropagation(); this.setState({ selectedMapId: null }, () => this.save()); },
+        onRandom: (ev) => { ev.stopPropagation(); this.randomMap(); }
+      }
+    ];
+
+    const bump = (field, d) => (ev) => {
+      ev.stopPropagation();
+      this.setState(s => ({ play: { ...s.play, [field]: Math.max(field === 'round' ? 1 : 0, s.play[field] + d) } }), () => this.savePlay());
+    };
+
+    return {
+      ready: true,
+      round: st.play.round, phaseName: ph.name, phaseColor: ph.color,
+      vpYou: st.play.vpYou, vpFoe: st.play.vpFoe,
+      trackerOpen: st.trackerOpen,
+      togglePlay: () => this.setState({ trackerOpen: true }),
+      closeTracker: () => this.setState({ trackerOpen: false }),
+      roundUp: bump('round', 1), roundDown: bump('round', -1),
+      vpYouUp: bump('vpYou', 1), vpYouDown: bump('vpYou', -1),
+      vpFoeUp: bump('vpFoe', 1), vpFoeDown: bump('vpFoe', -1),
+      nextPhase: (ev) => {
+        ev.stopPropagation();
+        this.setState(s => {
+          const nx = s.play.phase + 1;
+          return { play: { ...s.play, phase: nx > 3 ? 0 : nx, round: nx > 3 ? s.play.round + 1 : s.play.round } };
+        }, () => this.savePlay());
+      },
+      phases: phDefs.map((p, i) => {
+        const active = st.play.phase === i;
+        return {
+          short: p.short,
+          bg: active ? 'rgba(' + this.hexRgb(p.color) + ',0.2)' : '#1a1f2e',
+          bd: active ? p.color : 'var(--sc-border-input)',
+          fg: active ? p.color : '#8a91a5',
+          onSelect: (ev) => { ev.stopPropagation(); this.setState(s => ({ play: { ...s.play, phase: i } }), () => this.savePlay()); }
+        };
+      }),
+      tabs: [{ id: 'setup', label: 'Setup' }, { id: 'missions', label: 'Missions' }, { id: 'maps', label: 'Maps' }].map(t => ({
+        label: t.label,
+        bg: st.activeTab === t.id ? 'rgba(53,199,107,0.18)' : 'transparent',
+        fg: st.activeTab === t.id ? '#8fe6ae' : '#8a91a5',
+        onSelect: () => { this.setState({ activeTab: t.id }, () => this.save()); window.scrollTo(0, 0); }
+      })),
+      tabIsSetup: st.activeTab === 'setup', tabIsMissions: st.activeTab === 'missions', tabIsMaps: st.activeTab === 'maps',
+      sizes: [
+        { id: 'standard', name: 'Standard', desc: '54" × 36" · 2,000 minerals' },
+        { id: 'skirmish', name: 'Skirmish', desc: '36" × 36" · 1,000 minerals' }
+      ].map(sz => ({
+        name: sz.name, desc: sz.desc,
+        bg: st.battleSize === sz.id ? 'linear-gradient(180deg,rgba(53,199,107,0.12),#12151f 70%)' : '#12151f',
+        bd: st.battleSize === sz.id ? 'rgba(53,199,107,0.5)' : 'var(--sc-border-neutral)',
+        fg: st.battleSize === sz.id ? '#8fe6ae' : '#c8cede',
+        onSelect: () => this.setSize(sz.id)
+      })),
+      sumMinerals: std ? '2000' : '1000', sumGas: std ? '200' : '100', sumBoard: std ? '54×36' : '36×36',
+      sizeName: std ? 'Standard' : 'Skirmish',
+      slots,
+      hasAnyPick: !!(selM || selMap),
+      randomBoth: () => { this.randomMission(); this.randomMap(); },
+      missions, missionCount: missions.length,
+      maps, mapCount: maps.length,
+      exportOpen: st.exportOpen, exportText: st.exportOpen ? this.exportText() : '',
+      openExport: () => this.setState({ exportOpen: true, copied: false }),
+      closeExport: () => this.setState({ exportOpen: false }),
+      printBattleSheet: () => this.exportBattleSheet(),
+      copyLabel: st.copied ? '✓ Copied' : 'Copy to Clipboard',
+      copyExport: () => {
+        try { navigator.clipboard.writeText(this.exportText()); this.setState({ copied: true }); } catch (e) {}
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

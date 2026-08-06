@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#05060a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&amp;family=Chakra+Petch:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./shared-styles.css">
+  <style>
+    :root {
+      --fc-primary-45: rgba(176,110,247,0.45);
+      --fc-primary-60: rgba(176,110,247,0.6);
+      --fc-primary-solid: #b06ef7;
+      --fc-bg-10: rgba(147,51,234,0.1);
+      --fc-text-tint: #c99af7;
+    }
+    ::selection { background: rgba(147,51,234,0.4); }
+  </style>
+  <script src="zerg-data.js"></script>
+</helmet>
+
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<div style="max-width:480px;margin:0 auto;min-height:100dvh;background-color:#05060a;background-image:radial-gradient(120% 55% at 50% -10%, rgba(88,28,135,0.30), transparent 62%),radial-gradient(90% 30% at 85% 8%, rgba(147,51,234,0.12), transparent 60%),radial-gradient(1.2px 1.2px at 24px 38px, rgba(190,200,235,0.25), transparent),radial-gradient(1px 1px at 110px 92px, rgba(190,200,235,0.15), transparent);background-size:auto,auto,190px 190px,240px 240px;color:#e9ecf2;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,system-ui,sans-serif;font-size:15px;line-height:1.5;padding-bottom:calc(84px + env(safe-area-inset-bottom))" data-screen-label="Zerg Army">
+
+  <!-- ============ COMMAND HEADER (sticky) ============ -->
+  <div style="position:sticky;top:0;z-index:200;background:rgba(5,6,10,0.93);backdrop-filter:blur(14px);border-bottom:1px solid #232939;box-shadow:0 12px 28px rgba(0,0,0,0.5)">
+
+    <!-- title row -->
+    <div style="display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 8px">
+      <a href="Command Center.dc.html" aria-label="Back to command center" style="width:40px;height:40px;flex:0 0 auto;display:grid;place-items:center;color:#8a91a5;text-decoration:none;background:#141824;border:1px solid var(--sc-border-neutral);clip-path:var(--sc-corner-8)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </a>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#8a91a5">StarCraft TMG · The Swarm</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div style="font-family:'Chakra Petch',sans-serif;font-size:24px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#e9ecf2;line-height:1.1;text-shadow:0 0 18px rgba(176,110,247,0.45)">Zerg</div>
+          <div style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#b06ef7">{{ factionName }}</div>
+        </div>
+      </div>
+      <button onClick="{{ openSearch }}" aria-label="Search everything" style="width:40px;height:40px;flex:0 0 auto;display:grid;place-items:center;color:#c8cede;background:#141824;border:1px solid var(--sc-border-neutral);cursor:pointer;clip-path:var(--sc-corner-8)">
+        <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.4" stroke="currentColor" stroke-width="1.6"></circle><path d="M10.4 10.4L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+      </button>
+    </div>
+
+    <!-- play HUD, scoreboard layout: round left, score center, phase right -->
+    <div onClick="{{ togglePlay }}" role="button" aria-label="Open round tracker" style="margin:0 14px 8px;background:linear-gradient(120deg,rgba(176,110,247,0.55),rgba(43,49,69,0.5) 55%);padding:1px;cursor:pointer;clip-path:var(--sc-corner-10)"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--sc-card-bg);padding:12px 16px;clip-path:var(--sc-corner-10)">
+      <div style="display:flex;align-items:center;gap:6px;flex:0 0 auto">
+        <span style="width:6px;height:6px;background:{{ phaseColor }};box-shadow:0 0 6px {{ phaseColor }};animation:scPulse 2s infinite;flex:0 0 auto"></span>
+        <span style="font-family:'Chakra Petch',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.05em;color:#e9ecf2">R{{ round }}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;justify-content:center">
+        <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5">VP</span>
+        <span style="font-family:'Chakra Petch',sans-serif;font-size:32px;font-weight:700;color:#b06ef7;line-height:1">{{ vpYou }}</span>
+        <span style="color:#5b6275;font-size:20px">:</span>
+        <span style="font-family:'Chakra Petch',sans-serif;font-size:32px;font-weight:700;color:#c8cede;line-height:1">{{ vpFoe }}</span>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="margin-left:2px"><path d="M4 6l4 4 4-4" stroke="#8a91a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </div>
+      <div style="text-align:right;flex:0 0 auto">
+        <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8a91a5">Phase</div>
+        <div style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:{{ phaseColor }};white-space:nowrap">{{ phaseName }}</div>
+      </div>
+    </div></div>
+
+    <!-- resource strip (not on battle tab -- has its own supply block) -->
+    <sc-if value="{{ !tabIsBattle }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #1c2130">
+        <div style="padding:7px 8px 9px;text-align:center;border-right:1px solid #1c2130">
+          <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#8a91a5">Minerals</div>
+          <div style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;line-height:1.2;color:{{ mineralsColor }}">{{ mineralsUsed }}<span style="font-size:11px;color:#5b6275;font-weight:600"> / {{ mineralsCap }}</span></div>
+        </div>
+        <div style="padding:7px 8px 9px;text-align:center;border-right:1px solid #1c2130">
+          <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#8a91a5">Vespene</div>
+          <div style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;line-height:1.2;color:{{ gasColor }}">{{ gasUsed }}<span style="font-size:11px;color:#5b6275;font-weight:600"> / {{ gasCap }}</span></div>
+        </div>
+        <div style="padding:7px 8px 9px;text-align:center">
+          <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#8a91a5">Supply</div>
+          <div style="font-family:'Chakra Petch',sans-serif;font-size:16px;font-weight:700;line-height:1.2;color:#b06ef7">{{ supplyUsed }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- ============ ROSTER TAB ============ -->
+  <sc-if value="{{ tabIsRoster }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:14px">
+
+      <!-- scale + faction row -->
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;display:flex;background:var(--sc-card-bg);border:1px solid var(--sc-border-neutral);padding:3px;gap:2px">
+          <sc-for list="{{ scales }}" as="sc" hint-placeholder-count="3">
+            <button onClick="{{ sc.onSelect }}" style="flex:1;height:36px;border:none;background:{{ sc.bg }};color:{{ sc.fg }};font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">{{ sc.name }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- brood (faction) selector strip -->
+      <button onClick="{{ gotoFaction }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:12px;background:linear-gradient(90deg,rgba(147,51,234,0.14),rgba(147,51,234,0.03));border:1px solid rgba(176,110,247,0.35);color:#e9ecf2;cursor:pointer;text-align:left;clip-path:var(--sc-corner-10)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex:0 0 auto;color:#b06ef7"><path d="M8 1l2 4 4 1-3 3 .8 4L8 11l-3.8 2 .8-4-3-3 4-1 2-4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg>
+        <span style="flex:1;min-width:0">
+          <span style="display:block;font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5">Brood Card</span>
+          <span style="display:block;font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.04em">{{ factionName }}</span>
+        </span>
+        <span style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
+          <sc-for list="{{ slotPills }}" as="sp" hint-placeholder-count="4">
+            <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 7px;background:var(--sc-card-bg);border:1px solid {{ sp.bd }};color:{{ sp.fg }}">{{ sp.label }}</span>
+          </sc-for>
+        </span>
+      </button>
+
+      <!-- empty state -->
+      <sc-if value="{{ rosterEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:36px 20px;text-align:center;border:1px dashed var(--sc-border-input);background:rgba(18,21,31,0.6)">
+          <div style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c8cede;margin-bottom:6px">No units mustered</div>
+          <div style="font-size:13px;color:#8a91a5;margin-bottom:16px">The Hive Cluster awaits your command. Add units from the Library to begin building your swarm.</div>
+          <button onClick="{{ gotoLibrary }}" style="height:44px;padding:0 20px;background:rgba(147,51,234,0.2);border:1px solid rgba(176,110,247,0.5);color:#d9bafc;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;clip-path:var(--sc-corner-8)">Open Library ▸</button>
+        </div>
+      </sc-if>
+
+      <!-- roster groups -->
+      <sc-for list="{{ rosterGroups }}" as="grp" hint-placeholder-count="2">
+        <div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 2px 8px">
+            <span style="width:8px;height:8px;background:{{ grp.color }};clip-path:var(--sc-diamond)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:{{ grp.color }}">{{ grp.role }}</span>
+            <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;color:#8a91a5">{{ grp.count }} · {{ grp.cost }}m</span>
+          </div>
+          <div style="display:grid;gap:8px">
+            <sc-for list="{{ grp.entries }}" as="en" hint-placeholder-count="2">
+              <div style="position:relative;background:var(--sc-card-bg);border:1px solid {{ en.borderColor }};clip-path:var(--sc-corner-12)">
+                <sc-if value="{{ en.portrait }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;pointer-events:none;opacity:0.5;background-image:url('{{ en.portrait }}');background-repeat:no-repeat;background-size:{{ en.portraitSize }};background-position:{{ en.portraitPos }}"></span><span style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(11,14,23,0.88) 20%,rgba(11,14,23,0.4) 46%,rgba(11,14,23,0.08) 72%,rgba(11,14,23,0.3) 100%)"></span></sc-if>
+                <div onClick="{{ en.onToggle }}" role="button" style="position:relative;display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;min-height:44px">
+                  <div style="position:relative;flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                      <span style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2">{{ en.name }}</span>
+                      <sc-if value="{{ en.unique }}" hint-placeholder-val="{{ false }}"><span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;background:rgba(242,193,78,0.14);border:1px solid rgba(242,193,78,0.4);color:#f2c14e">Unique</span></sc-if>
+                    </div>
+                    <div style="font-size:12px;color:#8a91a5;margin-top:1px">{{ en.tierLabel }}</div>
+                  </div>
+                  <div style="position:relative;text-align:right;flex:0 0 auto">
+                    <div style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;color:#f2c14e;line-height:1.2">{{ en.cost }}</div>
+                    <div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8a91a5">Sup {{ en.supply }}</div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="position:relative;flex:0 0 auto;transform:rotate({{ en.chev }}deg);transition:transform 0.18s"><path d="M6 4l4 4-4 4" stroke="#8a91a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <sc-if value="{{ en.expanded }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:relative;border-top:1px solid #1f2430;padding:12px">
+                    <dc-import name="UnitDetail" detail="{{ en.detail }}" hint-size="100%,300px"></dc-import>
+                    <div style="display:flex;gap:8px;margin-top:12px">
+                      <button onClick="{{ en.onChangeTier }}" style="flex:1;height:40px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer">Change Tier</button>
+                      <button onClick="{{ en.onRemove }}" style="flex:1;height:40px;background:rgba(240,74,74,0.1);border:1px solid rgba(240,74,74,0.35);color:#f08a8a;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer">Remove</button>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+
+      <!-- tactical summary on roster -->
+      <sc-if value="{{ hasTactical }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 2px 8px">
+            <span style="width:8px;height:8px;background:#38d3e8;clip-path:var(--sc-diamond)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#38d3e8">Tactical Cards</span>
+            <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;color:#8a91a5">{{ tacticalCount }} · {{ gasUsed }}g</span>
+          </div>
+          <div style="display:grid;gap:6px">
+            <sc-for list="{{ rosterTactical }}" as="tc" hint-placeholder-count="2">
+              <button onClick="{{ tc.onOpen }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:var(--sc-card-bg);border:1px solid var(--sc-border-neutral);color:#e9ecf2;cursor:pointer;text-align:left">
+                <span style="flex:1;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.03em">{{ tc.name }}</span>
+                <span style="font-size:12px;color:#8a91a5">{{ tc.summary }}</span>
+                <span style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;color:#38d3e8;flex:0 0 auto">{{ tc.cost }}g</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- export / saved rosters -->
+      <div style="display:flex;gap:8px">
+        <sc-if value="{{ !rosterEmpty }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ exportArmySheet }}" style="flex:1;height:44px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer">Export Army Sheet</button>
+        </sc-if>
+        <button onClick="{{ openRosters }}" style="flex:1;height:44px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer">Saved Rosters{{ savedRosterCountTag }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ BATTLE TAB ============ -->
+  <sc-if value="{{ tabIsBattle }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px">
+
+      <!-- empty state -->
+      <sc-if value="{{ battleEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:36px 20px;text-align:center;border:1px dashed var(--sc-border-input);background:rgba(18,21,31,0.6)">
+          <div style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c8cede;margin-bottom:6px">No units to track</div>
+          <div style="font-size:13px;color:#8a91a5;margin-bottom:16px">Muster units in the Roster tab first, then track losses and deployment here during play.</div>
+          <button onClick="{{ gotoLibrary }}" style="height:44px;padding:0 20px;background:rgba(147,51,234,0.2);border:1px solid rgba(176,110,247,0.5);color:#d9bafc;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;clip-path:var(--sc-corner-8)">Open Library ▸</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ !battleEmpty }}" hint-placeholder-val="{{ false }}">
+        <!-- supply summary -->
+        <div style="margin-bottom:16px;padding:9px 10px;background:var(--sc-card-bg);border:1px solid var(--sc-border-input);clip-path:var(--sc-corner-10);display:flex;align-items:center;gap:10px">
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+            <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8a91a5;white-space:nowrap">Deploy Supply</span>
+            <button onClick="{{ battleSupplyDown }}" style="width:26px;height:26px;flex:0 0 auto;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:14px;cursor:pointer">−</button>
+            <span style="font-family:'Chakra Petch',sans-serif;font-size:17px;font-weight:700;color:#e9ecf2;min-width:20px;text-align:center">{{ battleSupplyAvailable }}</span>
+            <button onClick="{{ battleSupplyUp }}" style="width:26px;height:26px;flex:0 0 auto;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:14px;cursor:pointer">+</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:rgba(23,27,40,0.7);border:1px solid #232939;flex:0 0 auto">
+            <span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:#8a91a5">Used</span>
+            <span style="font-family:'Chakra Petch',sans-serif;font-size:14px;font-weight:700;color:#e9ecf2">{{ battleSupplyUsed }}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:rgba(23,27,40,0.7);border:1px solid #232939;flex:0 0 auto">
+            <span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:#8a91a5">Left</span>
+            <span style="font-family:'Chakra Petch',sans-serif;font-size:14px;font-weight:700;color:#5fd98d">{{ battleSupplyRemaining }}</span>
+          </div>
+        </div>
+
+        <!-- tactical cards -->
+        <sc-if value="{{ hasBattleTactical }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;padding:0 2px 8px">
+              <span style="width:8px;height:8px;background:#38d3e8;clip-path:var(--sc-diamond)"></span>
+              <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#38d3e8">Tactical Cards</span>
+              <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+              <sc-if value="{{ anyTapped }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ refreshTactical }}" style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8a91a5;background:none;border:1px solid var(--sc-border-input);padding:3px 8px;cursor:pointer">Refresh All</button>
+              </sc-if>
+            </div>
+            <div style="display:grid;gap:6px">
+              <sc-for list="{{ battleTactical }}" as="tc" hint-placeholder-count="2">
+                <button onClick="{{ tc.onToggle }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:{{ tc.bg }};border:1px solid {{ tc.bd }};color:#e9ecf2;cursor:pointer;text-align:left">
+                  <span style="flex:1;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.03em">{{ tc.name }}</span>
+                  <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:{{ tc.fg }}">{{ tc.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- units -->
+        <sc-for list="{{ battleGroups }}" as="grp" hint-placeholder-count="2">
+          <div style="margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;padding:0 2px 8px">
+              <span style="width:8px;height:8px;background:{{ grp.color }};clip-path:var(--sc-diamond)"></span>
+              <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:{{ grp.color }}">{{ grp.role }}</span>
+              <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+            </div>
+            <div style="display:grid;gap:8px">
+              <sc-for list="{{ grp.entries }}" as="u" hint-placeholder-count="2">
+                <div style="position:relative;background:var(--sc-card-bg);border:1px solid {{ u.borderColor }};clip-path:var(--sc-corner-12)">
+                  <sc-if value="{{ u.portrait }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;pointer-events:none;opacity:0.5;background-image:url('{{ u.portrait }}');background-repeat:no-repeat;background-size:{{ u.portraitSize }};background-position:{{ u.portraitPos }}"></span><span style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(11,14,23,0.88) 20%,rgba(11,14,23,0.4) 46%,rgba(11,14,23,0.08) 72%,rgba(11,14,23,0.3) 100%)"></span></sc-if>
+                  <div onClick="{{ u.onToggle }}" role="button" style="position:relative;display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;min-height:44px">
+                    <div style="position:relative;flex:1;min-width:0">
+                      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                        <span style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2">{{ u.name }}</span>
+                        <sc-if value="{{ u.unique }}" hint-placeholder-val="{{ false }}"><span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;background:rgba(242,193,78,0.14);border:1px solid rgba(242,193,78,0.4);color:#f2c14e">Unique</span></sc-if>
+                      </div>
+                      <div style="font-size:12px;color:#8a91a5;margin-top:1px">{{ u.tierLabel }}</div>
+                    </div>
+                    <div style="position:relative;text-align:right;flex:0 0 auto">
+                      <div style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;color:#f2c14e;line-height:1.2">{{ u.cost }}</div>
+                      <div style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8a91a5">Sup {{ u.supply }}</div>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="position:relative;flex:0 0 auto;transform:rotate({{ u.chev }}deg);transition:transform 0.18s"><path d="M6 4l4 4-4 4" stroke="#8a91a5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </div>
+                  <div style="position:relative;display:flex;align-items:center;gap:8px;padding:0 12px 12px">
+                    <button onClick="{{ u.onToggleDeployed }}" style="height:30px;padding:0 10px;background:{{ u.deployBg }};border:1px solid {{ u.deployBd }};color:{{ u.deployFg }};font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">{{ u.deployLabel }}</button>
+                    <div style="flex:1;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 8px;background:rgba(22,26,39,0.75);backdrop-filter:blur(2px);border:1px solid var(--sc-border-input)">
+                      <button onClick="{{ u.onLossDown }}" style="width:28px;height:28px;background:rgba(26,31,46,0.85);border:1px solid var(--sc-border-input);color:#c8cede;font-size:14px;cursor:pointer">−</button>
+                      <span style="font-family:'Chakra Petch',sans-serif;font-size:13px;font-weight:700;color:#e9ecf2">{{ u.modelLossLabel }}</span>
+                      <button onClick="{{ u.onLossUp }}" style="width:28px;height:28px;background:rgba(147,51,234,0.18);border:1px solid rgba(176,110,247,0.4);color:#d9bafc;font-size:14px;cursor:pointer">+</button>
+                    </div>
+                  </div>
+                  <sc-if value="{{ u.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:relative;border-top:1px solid #1f2430;padding:12px">
+                      <dc-import name="UnitDetail" detail="{{ u.detail }}" hint-size="100%,300px"></dc-import>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ LIBRARY TAB ============ -->
+  <sc-if value="{{ tabIsLibrary }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px">
+      <sc-for list="{{ libraryGroups }}" as="grp" hint-placeholder-count="3">
+        <div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 2px 8px">
+            <span style="width:8px;height:8px;background:{{ grp.color }};clip-path:var(--sc-diamond)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:{{ grp.color }}">{{ grp.role }}</span>
+            <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+          </div>
+          <div style="display:grid;gap:8px">
+            <sc-for list="{{ grp.entries }}" as="en" hint-placeholder-count="2">
+              <div style="position:relative;background:var(--sc-card-bg);border:1px solid {{ en.borderColor }};clip-path:var(--sc-corner-12)">
+                <sc-if value="{{ en.portrait }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;pointer-events:none;opacity:0.5;background-image:url('{{ en.portrait }}');background-repeat:no-repeat;background-size:{{ en.portraitSize }};background-position:{{ en.portraitPos }}"></span><span style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(11,14,23,0.88) 20%,rgba(11,14,23,0.4) 46%,rgba(11,14,23,0.08) 72%,rgba(11,14,23,0.3) 100%)"></span></sc-if>
+                <div style="position:relative;display:flex;align-items:center;gap:10px;padding:12px;min-height:44px">
+                  <div onClick="{{ en.onToggle }}" role="button" style="position:relative;flex:1;min-width:0;cursor:pointer">
+                    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                      <span style="font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2">{{ en.name }}</span>
+                      <sc-if value="{{ en.unique }}" hint-placeholder-val="{{ false }}"><span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;background:rgba(242,193,78,0.14);border:1px solid rgba(242,193,78,0.4);color:#f2c14e">Unique</span></sc-if>
+                      <sc-if value="{{ en.inArmy }}" hint-placeholder-val="{{ false }}"><span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;background:rgba(53,199,107,0.14);border:1px solid rgba(53,199,107,0.4);color:#5fd98d">Mustered</span></sc-if>
+                    </div>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
+                      <sc-for list="{{ en.tags }}" as="tg" hint-placeholder-count="3">
+                        <button onClick="{{ tg.onOpen }}" style="font-size:10px;font-weight:600;letter-spacing:0.04em;padding:2px 7px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#a7aec2;cursor:pointer;border-radius:2px">{{ tg.name }}</button>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <button onClick="{{ en.onAdd }}" aria-label="Add unit" style="width:44px;height:44px;flex:0 0 auto;display:grid;place-items:center;background:rgba(147,51,234,0.16);border:1px solid rgba(176,110,247,0.45);color:#d9bafc;font-size:20px;cursor:pointer;clip-path:var(--sc-corner-9)">+</button>
+                </div>
+                <sc-if value="{{ en.expanded }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:relative;border-top:1px solid #1f2430;padding:12px">
+                    <dc-import name="UnitDetail" detail="{{ en.detail }}" hint-size="100%,300px"></dc-import>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- ============ TACTICS TAB ============ -->
+  <sc-if value="{{ tabIsTactics }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px">
+      <sc-for list="{{ tacticalGroups }}" as="grp" hint-placeholder-count="3">
+        <div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 2px 8px">
+            <span style="width:8px;height:8px;background:#38d3e8;clip-path:var(--sc-diamond)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#38d3e8">{{ grp.name }}</span>
+            <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+          </div>
+          <div style="display:grid;gap:8px">
+            <sc-for list="{{ grp.cards }}" as="tc" hint-placeholder-count="2">
+              <div style="background:var(--sc-card-bg);border:1px solid {{ tc.borderColor }};clip-path:var(--sc-corner-12)">
+                <div style="display:flex;align-items:center;gap:10px;padding:12px;min-height:44px">
+                  <div onClick="{{ tc.onToggle }}" role="button" style="flex:1;min-width:0;cursor:pointer">
+                    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                      <span style="font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2">{{ tc.name }}</span>
+                      <sc-if value="{{ tc.unique }}" hint-placeholder-val="{{ false }}"><span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;background:rgba(242,193,78,0.14);border:1px solid rgba(242,193,78,0.4);color:#f2c14e">Unique</span></sc-if>
+                    </div>
+                    <div style="font-size:12px;color:#8a91a5;margin-top:2px">{{ tc.summary }}</div>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">
+                      <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;padding:2px 7px;background:rgba(56,211,232,0.06);border:1px solid rgba(56,211,232,0.22);color:#7fc9d4">{{ tc.cost }} gas</span>
+                      <sc-if value="{{ tc.resource }}" hint-placeholder-val="{{ false }}"><span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;padding:2px 7px;background:rgba(182,230,74,0.05);border:1px solid rgba(182,230,74,0.2);color:#a8c479">{{ tc.resource }}</span></sc-if>
+                      <sc-for list="{{ tc.slotPills }}" as="sp" hint-placeholder-count="1">
+                        <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;padding:2px 7px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#8a91a5">{{ sp }}</span>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <button onClick="{{ tc.onAddRemove }}" aria-label="Toggle tactical card" style="width:44px;height:44px;flex:0 0 auto;display:grid;place-items:center;background:{{ tc.btnBg }};border:1px solid {{ tc.btnBd }};color:{{ tc.btnFg }};font-size:19px;cursor:pointer;clip-path:var(--sc-corner-9)">{{ tc.btnGlyph }}</button>
+                </div>
+                <sc-if value="{{ tc.expanded }}" hint-placeholder-val="{{ false }}">
+                  <div style="border-top:1px solid #1f2430;padding:12px;display:grid;gap:10px">
+                    <sc-for list="{{ tc.abilities }}" as="ab" hint-placeholder-count="2">
+                      <div>
+                        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
+                          <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 6px;background:{{ ab.phBg }};color:{{ ab.phFg }}">{{ ab.phase }}</span>
+                          <span style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#e9ecf2">{{ ab.name }}</span>
+                          <span style="font-size:11px;color:#8a91a5">{{ ab.type }}</span>
+                        </div>
+                        <div style="font-size:13px;color:#b9bfd0;line-height:1.55"><sc-for list="{{ ab.segs }}" as="sg" hint-placeholder-count="1"><sc-if value="{{ sg.kw }}" hint-placeholder-val="{{ false }}"><span onClick="{{ sg.onOpen }}" style="color:#c99af7;border-bottom:1px dotted rgba(176,110,247,0.6);font-weight:600;cursor:pointer">{{ sg.t }}</span></sc-if><sc-if value="{{ sg.plain }}" hint-placeholder-val="{{ true }}"><span>{{ sg.t }}</span></sc-if></sc-for></div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- ============ BROOD (FACTION) TAB ============ -->
+  <sc-if value="{{ tabIsFaction }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px">
+      <div style="font-size:13px;color:#8a91a5;margin:0 2px 12px">Your Brood Card defines base unit slots and grants faction abilities. Exactly one is active.</div>
+      <div style="display:grid;gap:10px">
+        <sc-for list="{{ factionCards }}" as="fc" hint-placeholder-count="2">
+          <div style="background:{{ fc.bg }};border:1px solid {{ fc.bd }};clip-path:var(--sc-corner-12)">
+            <div onClick="{{ fc.onSelect }}" role="button" style="display:flex;align-items:center;gap:10px;padding:14px 12px;cursor:pointer;min-height:44px">
+              <span style="width:18px;height:18px;flex:0 0 auto;display:grid;place-items:center;border:1px solid {{ fc.dotBd }};border-radius:50%"><span style="width:9px;height:9px;border-radius:50%;background:{{ fc.dot }}"></span></span>
+              <div style="flex:1;min-width:0">
+                <div style="font-family:Rajdhani,sans-serif;font-size:17px;font-weight:700;letter-spacing:0.04em;color:#e9ecf2">{{ fc.name }}</div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
+                  <sc-for list="{{ fc.slotPills }}" as="sp" hint-placeholder-count="3">
+                    <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;padding:2px 7px;background:rgba(10,12,17,0.5);border:1px solid var(--sc-border-input);color:#a7aec2">{{ sp }}</span>
+                  </sc-for>
+                  <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;padding:2px 7px;background:rgba(182,230,74,0.08);border:1px solid rgba(182,230,74,0.3);color:#b6e64a">{{ fc.resource }}</span>
+                </div>
+              </div>
+            </div>
+            <div style="border-top:1px solid #1f2430;padding:12px;display:grid;gap:10px">
+              <sc-for list="{{ fc.abilities }}" as="ab" hint-placeholder-count="3">
+                <div>
+                  <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
+                    <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 6px;background:{{ ab.phBg }};color:{{ ab.phFg }}">{{ ab.phase }}</span>
+                    <span style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#e9ecf2">{{ ab.name }}</span>
+                    <span style="font-size:11px;color:#8a91a5">{{ ab.type }}</span>
+                  </div>
+                  <div style="font-size:13px;color:#b9bfd0;line-height:1.55"><sc-for list="{{ ab.segs }}" as="sg" hint-placeholder-count="1"><sc-if value="{{ sg.kw }}" hint-placeholder-val="{{ false }}"><span onClick="{{ sg.onOpen }}" style="color:#c99af7;border-bottom:1px dotted rgba(176,110,247,0.6);font-weight:600;cursor:pointer">{{ sg.t }}</span></sc-if><sc-if value="{{ sg.plain }}" hint-placeholder-val="{{ true }}"><span>{{ sg.t }}</span></sc-if></sc-for></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ CODEX TAB ============ -->
+  <sc-if value="{{ tabIsCodex }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--sc-card-bg);border:1px solid var(--sc-border-neutral);margin-bottom:14px">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style="flex:0 0 auto"><circle cx="7" cy="7" r="4.4" stroke="#8a91a5" stroke-width="1.6"></circle><path d="M10.4 10.4L14 14" stroke="#8a91a5" stroke-width="1.6" stroke-linecap="round"></path></svg>
+        <input value="{{ codexQ }}" onChange="{{ onCodexInput }}" placeholder="Filter keywords and tags…" style="flex:1;background:none;border:none;color:#e9ecf2;font-size:15px;padding:12px 0;font-family:inherit">
+      </div>
+      <sc-for list="{{ codexGroups }}" as="grp" hint-placeholder-count="2">
+        <div style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 2px 8px">
+            <span style="width:8px;height:8px;background:#b06ef7;clip-path:var(--sc-diamond)"></span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#b06ef7">{{ grp.name }}</span>
+            <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--sc-border-neutral),transparent)"></span>
+          </div>
+          <div style="display:grid;gap:6px">
+            <sc-for list="{{ grp.entries }}" as="kw" hint-placeholder-count="4">
+              <div style="padding:10px 12px;background:var(--sc-card-bg);border:1px solid var(--sc-border-neutral)">
+                <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:2px">
+                  <span style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.06em;color:#e9ecf2">{{ kw.name }}</span>
+                  <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#8a91a5">{{ kw.type }}</span>
+                </div>
+                <div style="font-size:13px;color:#b9bfd0;line-height:1.55">{{ kw.description }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- ============ BOTTOM TAB BAR ============ -->
+  <div style="position:fixed;left:0;right:0;bottom:0;z-index:220;display:flex;justify-content:center;pointer-events:none">
+    <div style="width:100%;max-width:480px;pointer-events:auto;background:rgba(6,8,13,0.96);backdrop-filter:blur(14px);border-top:1px solid #232939;display:flex;padding-bottom:env(safe-area-inset-bottom)">
+      <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="5">
+        <button onClick="{{ tb.onSelect }}" style="flex:1;height:60px;border:none;background:{{ tb.bg }};color:{{ tb.fg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative">
+          <span style="position:absolute;top:0;left:20%;right:20%;height:2px;background:{{ tb.tick }}"></span>
+          <span style="display:grid;place-items:center;width:20px;height:20px"><sc-if value="{{ tb.isRoster }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l5 2.6v4.2c0 3-2.2 5.3-5 6.2-2.8-.9-5-3.2-5-6.2V4.1L8 1.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path></svg></sc-if><sc-if value="{{ tb.isBattle }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 14V2M4 2h8l-2 3 2 3H4" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path></svg></sc-if><sc-if value="{{ tb.isLibrary }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" stroke="currentColor" stroke-width="1.4"></rect><rect x="9" y="2" width="5" height="5" stroke="currentColor" stroke-width="1.4"></rect><rect x="2" y="9" width="5" height="5" stroke="currentColor" stroke-width="1.4"></rect><rect x="9" y="9" width="5" height="5" stroke="currentColor" stroke-width="1.4"></rect></svg></sc-if><sc-if value="{{ tb.isTactics }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"></circle><circle cx="8" cy="8" r="2.4" stroke="currentColor" stroke-width="1.4"></circle><path d="M8 2v2.5M8 11.5V14M2 8h2.5M11.5 8H14" stroke="currentColor" stroke-width="1.4"></path></svg></sc-if><sc-if value="{{ tb.isFaction }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 1l2 4 4 1-3 3 .8 4L8 11l-3.8 2 .8-4-3-3 4-1 2-4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg></sc-if><sc-if value="{{ tb.isCodex }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 2.5h7.5A2.5 2.5 0 0113 5v8.5H5.5A2.5 2.5 0 013 11V2.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path><path d="M6 5.5h4M6 8h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg></sc-if></span>
+          <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase">{{ tb.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ============ KEYWORD / TAG SHEET ============ -->
+  <sc-if value="{{ sheetKeyword }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSheet }}" style="position:fixed;inset:0;z-index:300;background:rgba(4,5,8,0.65);animation:scFade 0.15s ease"></div>
+    <div style="position:fixed;left:0;right:0;bottom:0;z-index:310;display:flex;justify-content:center;pointer-events:none">
+      <div style="width:100%;max-width:480px;pointer-events:auto;background:#141824;border:1px solid rgba(176,110,247,0.4);border-bottom:none;padding:16px 16px calc(20px + env(safe-area-inset-bottom));animation:scSheetUp 0.2s ease;clip-path:var(--sc-corner-14-top)">
+        <div style="width:36px;height:3px;background:var(--sc-border-input);margin:0 auto 14px;border-radius:2px"></div>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px">
+          <span style="font-family:Rajdhani,sans-serif;font-size:20px;font-weight:700;letter-spacing:0.08em;color:#c99af7">{{ sheetTitle }}</span>
+          <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#8a91a5">{{ sheetMeta }}</span>
+        </div>
+        <div style="font-size:14px;color:#c8cede;line-height:1.6">{{ sheetBody }}</div>
+        <button onClick="{{ closeSheet }}" style="margin-top:16px;width:100%;height:44px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">Close</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ TIER PICKER SHEET ============ -->
+  <sc-if value="{{ sheetTier }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSheet }}" style="position:fixed;inset:0;z-index:300;background:rgba(4,5,8,0.65);animation:scFade 0.15s ease"></div>
+    <div style="position:fixed;left:0;right:0;bottom:0;z-index:310;display:flex;justify-content:center;pointer-events:none">
+      <div style="width:100%;max-width:480px;pointer-events:auto;background:#141824;border:1px solid rgba(176,110,247,0.4);border-bottom:none;padding:16px 16px calc(20px + env(safe-area-inset-bottom));animation:scSheetUp 0.2s ease;clip-path:var(--sc-corner-14-top)">
+        <div style="width:36px;height:3px;background:var(--sc-border-input);margin:0 auto 14px;border-radius:2px"></div>
+        <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5;margin-bottom:2px">Select Tier</div>
+        <div style="font-family:Rajdhani,sans-serif;font-size:20px;font-weight:700;letter-spacing:0.04em;color:#e9ecf2;margin-bottom:12px">{{ tierUnitName }}</div>
+        <div style="display:grid;gap:8px">
+          <sc-for list="{{ tierOptions }}" as="tp" hint-placeholder-count="2">
+            <button onClick="{{ tp.onPick }}" style="display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 14px;background:var(--sc-card-bg);border:1px solid rgba(176,110,247,0.35);color:#e9ecf2;cursor:pointer;text-align:left;clip-path:var(--sc-corner-10)">
+              <span style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;color:#b06ef7;flex:0 0 34px">{{ tp.tier }}</span>
+              <span style="flex:1;font-size:13px;color:#a7aec2">{{ tp.models }} models · Supply {{ tp.supply }}</span>
+              <span style="font-family:Rajdhani,sans-serif;font-size:17px;font-weight:700;color:#f2c14e">{{ tp.cost }}<span style="font-size:11px;color:#8a91a5">m</span></span>
+            </button>
+          </sc-for>
+        </div>
+        <button onClick="{{ closeSheet }}" style="margin-top:12px;width:100%;height:44px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">Cancel</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ SAVED ROSTERS SHEET ============ -->
+  <sc-if value="{{ sheetRosters }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSheet }}" style="position:fixed;inset:0;z-index:300;background:rgba(4,5,8,0.65);animation:scFade 0.15s ease"></div>
+    <div style="position:fixed;left:0;right:0;bottom:0;z-index:310;display:flex;justify-content:center;pointer-events:none">
+      <div style="width:100%;max-width:480px;max-height:82vh;display:flex;flex-direction:column;pointer-events:auto;background:#141824;border:1px solid rgba(176,110,247,0.4);border-bottom:none;padding:16px 16px calc(20px + env(safe-area-inset-bottom));animation:scSheetUp 0.2s ease;clip-path:var(--sc-corner-14-top)">
+        <div style="width:36px;height:3px;background:var(--sc-border-input);margin:0 auto 14px;border-radius:2px;flex:0 0 auto"></div>
+        <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5;margin-bottom:10px;flex:0 0 auto">Saved Rosters</div>
+
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex:0 0 auto">
+          <input value="{{ newRosterName }}" onChange="{{ onNewRosterNameInput }}" placeholder="Name this roster…" style="flex:1;height:40px;padding:0 12px;background:#0e1119;border:1px solid var(--sc-border-input);color:#e9ecf2;font-size:14px;font-family:inherit">
+          <button onClick="{{ saveCurrentAsRoster }}" style="height:40px;padding:0 16px;background:{{ saveRosterBg }};border:1px solid rgba(176,110,247,0.5);color:{{ saveRosterFg }};font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Save</button>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;min-height:0">
+          <sc-if value="{{ rostersEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:24px 8px;text-align:center;color:#5b6275;font-size:13px">No saved rosters yet. Build a roster, name it above, and tap Save.</div>
+          </sc-if>
+          <sc-for list="{{ savedRosterRows }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;margin-bottom:6px;background:var(--sc-card-bg);border:1px solid var(--sc-border-neutral)">
+              <div style="flex:1;min-width:0">
+                <div style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div>
+                <div style="font-size:11px;color:#8a91a5">{{ r.meta }}</div>
+              </div>
+              <sc-if value="{{ r.confirming }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ r.onDelete }}" style="height:32px;padding:0 10px;background:rgba(240,74,74,0.18);border:1px solid rgba(240,74,74,0.5);color:#f08a8a;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Confirm</button>
+                <button onClick="{{ r.onCancelDelete }}" style="height:32px;padding:0 10px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">Cancel</button>
+              </sc-if>
+              <sc-if value="{{ !r.confirming }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ r.onExport }}" aria-label="Export" style="width:32px;height:32px;flex:0 0 auto;display:grid;place-items:center;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;cursor:pointer"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                <button onClick="{{ r.onDeleteStart }}" aria-label="Delete" style="width:32px;height:32px;flex:0 0 auto;display:grid;place-items:center;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;cursor:pointer"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 4.5h10M6.5 4.5V3a1 1 0 011-1h1a1 1 0 011 1v1.5M4.5 4.5l.6 8.4a1 1 0 001 .93h3.8a1 1 0 001-.93l.6-8.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                <button onClick="{{ r.onLoad }}" style="height:32px;padding:0 14px;background:rgba(147,51,234,0.2);border:1px solid rgba(176,110,247,0.5);color:#d9bafc;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap">Load</button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <input ref="{{ rosterFileRef }}" type="file" accept="application/json,.json" onChange="{{ importRosterFile }}" style="display:none">
+        <button onClick="{{ triggerImport }}" style="margin-top:10px;width:100%;height:40px;flex:0 0 auto;background:none;border:1px dashed var(--sc-border-input);color:#8a91a5;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer">Import Roster File</button>
+        <button onClick="{{ closeSheet }}" style="margin-top:8px;width:100%;height:44px;flex:0 0 auto;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">Close</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ ROUND TRACKER SHEET ============ -->
+  <sc-if value="{{ sheetPlay }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSheet }}" style="position:fixed;inset:0;z-index:300;background:rgba(4,5,8,0.65);animation:scFade 0.15s ease"></div>
+    <div style="position:fixed;left:0;right:0;top:0;z-index:310;display:flex;justify-content:center;pointer-events:none">
+      <div style="width:100%;max-width:480px;pointer-events:auto;background:#141824;border:1px solid rgba(176,110,247,0.4);border-top:none;padding:calc(14px + env(safe-area-inset-top)) 16px 16px;animation:scSheetDown 0.2s ease;clip-path:var(--sc-corner-14-bottom)">
+        <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5;margin-bottom:12px">Round Tracker</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#8a91a5">Round</span>
+            <button onClick="{{ roundDown }}" style="width:{{ trackerRoundBtn }}px;height:{{ trackerRoundBtn }}px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">−</button>
+            <span style="font-family:'Chakra Petch',sans-serif;font-size:{{ trackerRoundVal }};font-weight:700;color:#e9ecf2;min-width:24px;text-align:center">{{ round }}</span>
+            <button onClick="{{ roundUp }}" style="width:{{ trackerRoundBtn }}px;height:{{ trackerRoundBtn }}px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">+</button>
+          </div>
+          <button onClick="{{ nextPhase }}" style="height:{{ trackerNextPhaseH }}px;padding:0 14px;background:rgba(147,51,234,0.2);border:1px solid rgba(176,110,247,0.5);color:#d9bafc;font-family:Rajdhani,sans-serif;font-size:{{ trackerNextPhaseFont }};font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;clip-path:var(--sc-corner-8)">Next Phase ▸</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px">
+          <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="4">
+            <button onClick="{{ ph.onSelect }}" style="height:{{ trackerPhaseBtnH }}px;background:{{ ph.bg }};border:1px solid {{ ph.bd }};color:{{ ph.fg }};font-family:Rajdhani,sans-serif;font-size:{{ trackerPhaseBtnFont }};font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">{{ ph.short }}</button>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:{{ trackerVpPad }};background:#161a27;border:1px solid var(--sc-border-input)">
+            <button onClick="{{ vpYouDown }}" style="width:{{ trackerVpBtn }}px;height:{{ trackerVpBtn }}px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">−</button>
+            <div style="text-align:center">
+              <div style="font-family:Rajdhani,sans-serif;font-size:{{ trackerVpLabel }};font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#b06ef7">You</div>
+              <div style="font-family:'Chakra Petch',sans-serif;font-size:{{ trackerVpVal }};font-weight:700;color:#e9ecf2;line-height:1">{{ vpYou }}</div>
+            </div>
+            <button onClick="{{ vpYouUp }}" style="width:{{ trackerVpBtn }}px;height:{{ trackerVpBtn }}px;background:rgba(147,51,234,0.18);border:1px solid rgba(176,110,247,0.4);color:#d9bafc;font-size:16px;cursor:pointer">+</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:{{ trackerVpPad }};background:#161a27;border:1px solid var(--sc-border-input)">
+            <button onClick="{{ vpFoeDown }}" style="width:{{ trackerVpBtn }}px;height:{{ trackerVpBtn }}px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">−</button>
+            <div style="text-align:center">
+              <div style="font-family:Rajdhani,sans-serif;font-size:{{ trackerVpLabel }};font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8a91a5">Enemy</div>
+              <div style="font-family:'Chakra Petch',sans-serif;font-size:{{ trackerVpVal }};font-weight:700;color:#e9ecf2;line-height:1">{{ vpFoe }}</div>
+            </div>
+            <button onClick="{{ vpFoeUp }}" style="width:{{ trackerVpBtn }}px;height:{{ trackerVpBtn }}px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-size:16px;cursor:pointer">+</button>
+          </div>
+        </div>
+        <button onClick="{{ resetPlay }}" style="margin-top:10px;width:100%;height:34px;background:none;border:1px dashed var(--sc-border-input);color:#8a91a5;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">Reset Tracker</button>
+        <button onClick="{{ closeSheet }}" style="margin-top:8px;width:100%;height:44px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer">Done</button>
+        <div style="width:36px;height:3px;background:var(--sc-border-input);margin:14px auto 0;border-radius:2px"></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ GLOBAL SEARCH OVERLAY ============ -->
+  <sc-if value="{{ searchOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:400;display:flex;justify-content:center;background:rgba(6,7,11,0.97);animation:scFade 0.12s ease">
+      <div style="width:100%;max-width:480px;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)">
+        <div style="display:flex;align-items:center;gap:10px;padding:14px">
+          <div style="flex:1;display:flex;align-items:center;gap:8px;padding:0 12px;background:#141824;border:1px solid rgba(176,110,247,0.45)">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style="flex:0 0 auto"><circle cx="7" cy="7" r="4.4" stroke="#b06ef7" stroke-width="1.6"></circle><path d="M10.4 10.4L14 14" stroke="#b06ef7" stroke-width="1.6" stroke-linecap="round"></path></svg>
+            <input ref="{{ searchRef }}" value="{{ searchQ }}" onChange="{{ onSearchInput }}" placeholder="Units, keywords, tags, tactics…" style="flex:1;background:none;border:none;color:#e9ecf2;font-size:16px;padding:13px 0;font-family:inherit">
+          </div>
+          <button onClick="{{ closeSearch }}" style="height:46px;padding:0 14px;background:none;border:1px solid var(--sc-border-input);color:#c8cede;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer">Esc</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:0 14px calc(24px + env(safe-area-inset-bottom))">
+          <sc-if value="{{ searchEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:40px 20px;text-align:center;color:#5b6275;font-size:13px">Type to search units, keywords, tags, and tactical cards.</div>
+          </sc-if>
+          <sc-if value="{{ searchNoHits }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:40px 20px;text-align:center;color:#5b6275;font-size:13px">No matches for “{{ searchQ }}”.</div>
+          </sc-if>
+          <sc-for list="{{ searchGroups }}" as="grp" hint-placeholder-count="1">
+            <div style="margin-bottom:14px">
+              <div style="font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#8a91a5;padding:6px 2px">{{ grp.name }}</div>
+              <div style="display:grid;gap:6px">
+                <sc-for list="{{ grp.hits }}" as="hit" hint-placeholder-count="3">
+                  <button onClick="{{ hit.onOpen }}" style="display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:10px 12px;background:var(--sc-card-bg);border:1px solid var(--sc-border-neutral);color:#e9ecf2;cursor:pointer;text-align:left">
+                    <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;background:{{ hit.badgeBg }};color:{{ hit.badgeFg }};flex:0 0 auto">{{ hit.kind }}</span>
+                    <span style="flex:1;min-width:0">
+                      <span style="display:block;font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;letter-spacing:0.02em">{{ hit.title }}</span>
+                      <span style="display:block;font-size:12px;color:#8a91a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ hit.sub }}</span>
+                    </span>
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="flex:0 0 auto"><path d="M6 4l4 4-4 4" stroke="#5b6275" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 420, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = {
+    ready: false,
+    tab: 'roster',
+    play: { round: 1, phase: 0, vpYou: 0, vpFoe: 0 },
+    scaleId: 'standard',
+    factionId: 'kerrigans-swarm',
+    army: [],        // [{key, unitId, tierIdx, upgs:[names], modelsLost, deployed}]
+    tactical: [],    // [ids]
+    tacticalTapped: [], // [ids currently tapped/exhausted]
+    battleSupplyAvailable: 4,
+    expArmy: {},
+    expLib: {},
+    expTac: {},
+    sheet: null,     // {type:'keyword'|'tier', ...}
+    searchOpen: false,
+    searchQ: '',
+    codexQ: '',
+    savedRosters: [], // [{id, name, savedAt, army, tactical, tacticalTapped, battleSupplyAvailable, scaleId, factionId}]
+    newRosterName: '',
+    confirmDeleteRosterId: null
+  };
+
+  componentDidMount() {
+    this._poll = setInterval(() => {
+      if (window.SCTMG_ZERG) {
+        clearInterval(this._poll);
+        this.loadSaved();
+        this.setState({ ready: true });
+      }
+    }, 40);
+  }
+  componentWillUnmount() { clearInterval(this._poll); }
+
+  D() { return window.SCTMG_ZERG; }
+
+  loadSaved() {
+    try {
+      const play = JSON.parse(localStorage.getItem('sctmg_play') || 'null');
+      if (play) this.state.play = { round: play.round || 1, phase: play.phase || 0, vpYou: play.vpYou || 0, vpFoe: play.vpFoe || 0 };
+      const saved = JSON.parse(localStorage.getItem('sctmg_zerg_v5') || 'null');
+      if (saved) {
+        this.state.army = (saved.army || []).filter(e => this.D().UNITS.find(u => u.id === e.unitId))
+          .map(e => ({ modelsLost: 0, deployed: false, ...e }));
+        this.state.tactical = (saved.tactical || []).filter(id => this.D().TACTICAL_CARDS.find(t => t.id === id));
+        this.state.tacticalTapped = (saved.tacticalTapped || []).filter(id => this.state.tactical.includes(id));
+        if (saved.battleSupplyAvailable != null) this.state.battleSupplyAvailable = saved.battleSupplyAvailable;
+        if (saved.scaleId) this.state.scaleId = saved.scaleId;
+        if (saved.factionId) this.state.factionId = saved.factionId;
+      } else {
+        // migrate from original app save if present
+        const v4 = JSON.parse(localStorage.getItem('sc-tmg-zerg-v4') || 'null');
+        if (v4) {
+          this.state.army = (v4.units || []).map((e, i) => {
+            const unit = this.D().UNITS.find(u => u.id === e.unitId);
+            if (!unit) return null;
+            const tierIdx = unit.tiers.findIndex(t => t.tier === (e.tier && e.tier.tier));
+            return { key: 'k' + Date.now() + i, unitId: e.unitId, tierIdx: tierIdx >= 0 ? tierIdx : 1, upgs: (e.selectedUpgrades || []).map(u => u.name) };
+          }).filter(Boolean);
+          this.state.tactical = v4.tactical || [];
+          if (v4.scaleId) this.state.scaleId = v4.scaleId;
+          if (v4.factionId) this.state.factionId = v4.factionId;
+        }
+      }
+      const list = JSON.parse(localStorage.getItem('sctmg_zerg_rosters_v1') || '[]');
+      this.state.savedRosters = Array.isArray(list) ? list : [];
+    } catch (e) { console.error(e); }
+  }
+
+  save() {
+    try {
+      localStorage.setItem('sctmg_zerg_v5', JSON.stringify({ army: this.state.army, tactical: this.state.tactical, tacticalTapped: this.state.tacticalTapped, battleSupplyAvailable: this.state.battleSupplyAvailable, scaleId: this.state.scaleId, factionId: this.state.factionId }));
+    } catch (e) {}
+  }
+  savePlay() {
+    try { localStorage.setItem('sctmg_play', JSON.stringify(this.state.play)); } catch (e) {}
+  }
+  saveRosterList() {
+    try { localStorage.setItem('sctmg_zerg_rosters_v1', JSON.stringify(this.state.savedRosters)); } catch (e) {}
+  }
+
+  // ---------- saved rosters ----------
+  snapshotRoster(name) {
+    const st = this.state;
+    return {
+      id: 'r' + Date.now() + Math.floor(Math.random() * 1000),
+      name,
+      savedAt: Date.now(),
+      army: st.army, tactical: st.tactical, tacticalTapped: st.tacticalTapped,
+      battleSupplyAvailable: st.battleSupplyAvailable, scaleId: st.scaleId, factionId: st.factionId
+    };
+  }
+  saveCurrentAsRoster() {
+    const name = (this.state.newRosterName || '').trim();
+    if (!name) return;
+    const entry = this.snapshotRoster(name);
+    this.setState(s2 => ({ savedRosters: [...s2.savedRosters, entry], newRosterName: '' }), () => this.saveRosterList());
+  }
+  loadRoster(id) {
+    const entry = this.state.savedRosters.find(r => r.id === id);
+    if (!entry) return;
+    const D = this.D();
+    const tactical = (entry.tactical || []).filter(tid => D.TACTICAL_CARDS.find(t => t.id === tid));
+    this.setState({
+      army: (entry.army || []).filter(e => D.UNITS.find(u => u.id === e.unitId)).map(e => ({ modelsLost: 0, deployed: false, ...e })),
+      tactical,
+      tacticalTapped: (entry.tacticalTapped || []).filter(tid => tactical.includes(tid)),
+      battleSupplyAvailable: entry.battleSupplyAvailable != null ? entry.battleSupplyAvailable : 4,
+      scaleId: entry.scaleId || this.state.scaleId,
+      factionId: entry.factionId || this.state.factionId,
+      sheet: null,
+      confirmDeleteRosterId: null
+    }, () => this.save());
+  }
+  deleteRoster(id) {
+    this.setState(s2 => ({ savedRosters: s2.savedRosters.filter(r => r.id !== id), confirmDeleteRosterId: null }), () => this.saveRosterList());
+  }
+  exportRoster(entry) {
+    try {
+      const blob = new Blob([JSON.stringify({ sctmgRoster: 1, faction: 'zerg', ...entry }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (entry.name || 'roster').replace(/[^a-z0-9\-_ ]/gi, '_') + '.sctmg.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+    } catch (e) { console.error(e); }
+  }
+  importRosterFile(ev) {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        const entry = {
+          id: 'r' + Date.now() + Math.floor(Math.random() * 1000),
+          name: data.name || file.name.replace(/\.sctmg\.json$|\.json$/i, ''),
+          savedAt: Date.now(),
+          army: data.army || [], tactical: data.tactical || [], tacticalTapped: data.tacticalTapped || [],
+          battleSupplyAvailable: data.battleSupplyAvailable != null ? data.battleSupplyAvailable : 4,
+          scaleId: data.scaleId || this.state.scaleId, factionId: data.factionId || this.state.factionId
+        };
+        this.setState(s2 => ({ savedRosters: [...s2.savedRosters, entry] }), () => this.saveRosterList());
+      } catch (e) { console.error('Import failed', e); }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- keyword segmentation ----------
+  kwRegex() {
+    if (!this._kwRe) {
+      const names = Object.keys(this.D().KEYWORDS).sort((a, b) => b.length - a.length).map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
+      this._kwRe = new RegExp('\\b(' + names.join('|') + ')(\\s*\\([^)]*\\))?', 'gi');
+    }
+    return this._kwRe;
+  }
+  segs(text) {
+    const out = [];
+    const re = this.kwRegex();
+    re.lastIndex = 0;
+    let last = 0, m;
+    while ((m = re.exec(text)) !== null) {
+      if (m.index > last) out.push({ t: text.slice(last, m.index), kw: false, plain: true });
+      const kwName = m[1].toUpperCase();
+      out.push({ t: m[0], kw: true, plain: false, onOpen: (ev) => { ev.stopPropagation(); this.openKeyword(kwName); } });
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) out.push({ t: text.slice(last), kw: false, plain: true });
+    return out;
+  }
+
+  openKeyword(name) {
+    const kw = this.D().KEYWORDS[name];
+    if (kw) this.setState({ sheet: { type: 'keyword', title: name, meta: kw.type + ' · Keyword', body: kw.description } });
+  }
+  openTag(name) {
+    const tg = this.D().TAGS[name];
+    if (tg) this.setState({ sheet: { type: 'keyword', title: name, meta: tg.type, body: tg.description } });
+  }
+
+  // ---------- phase helpers ----------
+  phaseDefs() {
+    return [
+      { name: 'Movement', short: 'Move', color: '#4f8df9' },
+      { name: 'Assault', short: 'Assault', color: '#f9822f' },
+      { name: 'Combat', short: 'Combat', color: '#f04a4a' },
+      { name: 'Scoring', short: 'Score', color: '#35c76b' }
+    ];
+  }
+  portrait(u) {
+    const P = {
+      kerrigan: { src: 'uploads/Kerrigan.png', size: 'auto 520px', pos: 'right -230px top -175px' },
+      corpser: { src: 'portraits/zerg/corpser.png', size: 'auto 288px', pos: 'right -1px top 5px' },
+      hydralisk: { src: 'portraits/zerg/hydralisk.png', size: 'auto 192px', pos: 'right -1px top 1px' },
+      queen: { src: 'portraits/zerg/queen.png', size: 'auto 228px', pos: 'right 19px top 3px' },
+      roach: { src: 'portraits/zerg/roach.png', size: 'auto 158px', pos: 'right -15px top 0px' },
+      zergling: { src: 'portraits/zerg/zergling.png', size: 'auto 291px', pos: 'right 73px top 6px' }
+    };
+    const p = P[u.id];
+    return p ? { portrait: p.src, portraitSize: p.size, portraitPos: p.pos } : { portrait: false };
+  }
+  phaseBadge(phaseLabel) {
+    const map = { 'Movement Phase': '#4f8df9', 'Assault Phase': '#f9822f', 'Combat Phase': '#f04a4a', 'Scoring Phase': '#35c76b', 'Any Phase': '#8a91a5' };
+    const c = map[phaseLabel] || '#8a91a5';
+    return { phBg: 'rgba(' + this.hexRgb(c) + ',0.16)', phFg: c };
+  }
+  hexRgb(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+  }
+  roleColor(role) {
+    return { Hero: '#f2a33c', Elite: '#b06ef7', Core: '#4f8df9', Support: '#35c76b', Other: '#8a91a5' }[role] || '#8a91a5';
+  }
+
+  // ---------- totals ----------
+  upgCostNum(cost) {
+    if (typeof cost === 'string' && cost.includes('/')) return parseInt(cost.split('/')[0], 10) || 0;
+    return parseInt(cost, 10) || 0;
+  }
+  unitUpgList(unit) {
+    const out = [];
+    Object.entries(unit.upgrades || {}).forEach(([phase, list]) => list.forEach(u => out.push({ ...u, phase })));
+    return out;
+  }
+
+  // ---------- battle tracking ----------
+  parseModelRange(str) {
+    const m = String(str || '').match(/(\d+)(?:-(\d+))?/);
+    if (!m) return { min: 0, max: 0 };
+    const min = parseInt(m[1], 10);
+    const max = m[2] ? parseInt(m[2], 10) : min;
+    return { min, max };
+  }
+  unitStartingModels(unit, tierIdx) {
+    return this.parseModelRange(unit.tiers[tierIdx].models).max;
+  }
+  unitEffectiveTierIdx(unit, purchasedTierIdx, remaining) {
+    if (remaining <= 0) return -1;
+    for (let i = purchasedTierIdx; i < unit.tiers.length; i++) {
+      if (remaining >= this.parseModelRange(unit.tiers[i].models).min) return i;
+    }
+    return unit.tiers.length - 1;
+  }
+  setModelsLost(key, delta) {
+    this.setState(st => ({
+      army: st.army.map(e => {
+        if (e.key !== key) return e;
+        const unit = this.D().UNITS.find(u => u.id === e.unitId);
+        const max = unit ? this.unitStartingModels(unit, e.tierIdx) : 0;
+        const lost = Math.max(0, Math.min(max, (e.modelsLost || 0) + delta));
+        return { ...e, modelsLost: lost };
+      })
+    }), () => this.save());
+  }
+  toggleDeployed(key) {
+    this.setState(st => ({
+      army: st.army.map(e => e.key === key ? { ...e, deployed: !e.deployed } : e)
+    }), () => this.save());
+  }
+  toggleTapped(id) {
+    this.setState(st => ({
+      tacticalTapped: st.tacticalTapped.includes(id) ? st.tacticalTapped.filter(x => x !== id) : [...st.tacticalTapped, id]
+    }), () => this.save());
+  }
+  refreshTactical() {
+    this.setState({ tacticalTapped: [] }, () => this.save());
+  }
+  bumpBattleSupply(d) {
+    this.setState(st => ({ battleSupplyAvailable: Math.max(0, st.battleSupplyAvailable + d) }), () => this.save());
+  }
+
+  totals() {
+    const D = this.D();
+    let minerals = 0, supply = 0;
+    this.state.army.forEach(e => {
+      const unit = D.UNITS.find(u => u.id === e.unitId);
+      if (!unit) return;
+      const tier = unit.tiers[e.tierIdx];
+      minerals += tier.cost || 0;
+      supply += tier.supply || 0;
+      const upgs = this.unitUpgList(unit);
+      (e.upgs || []).forEach(name => {
+        const u = upgs.find(x => x.name === name);
+        if (u) minerals += this.upgCostNum(u.cost);
+      });
+    });
+    const gas = this.state.tactical.reduce((s, id) => {
+      const t = D.TACTICAL_CARDS.find(x => x.id === id);
+      return s + (t ? t.cost : 0);
+    }, 0);
+    return { minerals, gas, supply };
+  }
+
+  // ---------- detail builder (passed to UnitDetail child) ----------
+  buildDetail(unit, entry) {
+    const s = unit.stats;
+    const stats = [
+      { k: 'SPD', v: s.speed }, { k: 'EVD', v: s.evade }, { k: 'ARM', v: s.armour },
+      { k: 'HP', v: String(s.hp) }, { k: 'SIZE', v: String(s.size) }
+    ];
+    if (s.shield) stats.unshift({ k: 'SHD', v: String(s.shield) });
+    const weapons = (unit.weapons || []).map(w => ({
+      name: w.name,
+      ...this.phaseBadge(w.phase + ' Phase'),
+      phase: w.phase,
+      chips: [
+        { k: 'RNG', v: String(w.range) }, { k: 'TGT', v: w.target }, { k: 'RoA', v: String(w.roa) }, { k: 'HIT', v: w.hit },
+        { k: 'SURGE', v: w.surge }, { k: 'S.DIE', v: w.sDie }, { k: 'DMG', v: String(w.damage) }
+      ],
+      kwSegs: w.keywords && w.keywords.length ? this.segs(w.keywords.join(', ')) : null
+    }));
+    const order = ['Any Phase', 'Movement Phase', 'Assault Phase', 'Combat Phase', 'Scoring Phase'];
+    const groupsMap = {};
+    (unit.abilities || []).forEach(a => { (groupsMap[a.phase] = groupsMap[a.phase] || []).push(a); });
+    Object.entries(unit.phaseAbilities || {}).forEach(([ph, list]) => { (groupsMap[ph] = groupsMap[ph] || []).push(...list); });
+    const abilityGroups = order.filter(ph => groupsMap[ph]).map(ph => ({
+      phase: ph.replace(' Phase', ''),
+      ...this.phaseBadge(ph),
+      items: groupsMap[ph].map(a => ({ name: a.name, type: a.type, segs: this.segs(a.description) }))
+    }));
+    const upgList = this.unitUpgList(unit);
+    const upgrades = upgList.map(u => {
+      const on = entry ? (entry.upgs || []).includes(u.name) : false;
+      return {
+        name: u.name, cost: String(u.cost) + 'm', type: u.type, phase: u.phase.replace(' Phase', ''),
+        ...this.phaseBadge(u.phase),
+        segs: this.segs(u.description),
+        interactive: !!entry, on,
+        onToggle: entry ? (ev) => { ev.stopPropagation(); this.toggleUpgrade(entry.key, u.name); } : null
+      };
+    });
+    const tags = (unit.tags || []).map(t => ({ name: t, onOpen: (ev) => { ev.stopPropagation(); this.openTag(t); } }));
+    return { stats, weapons, abilityGroups, upgrades, tags };
+  }
+
+  // ---------- print army sheet ----------
+  printEsc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  printSegsHtml(segs) {
+    if (!segs) return '';
+    return segs.map(s => s.kw ? '<span class="kw">' + this.printEsc(s.t) + '</span>' : this.printEsc(s.t)).join('');
+  }
+  printStatBar(stats) {
+    const order = ['SHD', 'SPD', 'EVD', 'ARM', 'HP', 'SIZE'];
+    const labelMap = { SHD: 'SHLD', SPD: 'SPD', EVD: 'EVA', ARM: 'ARM', HP: 'HP', SIZE: 'SIZ' };
+    const byK = {}; stats.forEach(s => { byK[s.k] = s.v; });
+    return '<div class="stat-bar">' + order.map(k =>
+      '<div class="stat-cell"><span class="stat-label">' + labelMap[k] + '</span><span class="stat-val">' + this.printEsc(byK[k] != null ? byK[k] : '–') + '</span></div>'
+    ).join('') + '</div>';
+  }
+  printSupplyTrack(unit, activeTierIdx) {
+    const brackets = unit.tiers.map((t, i) => {
+      const zero = !t.cost;
+      const active = i === activeTierIdx;
+      return '<div class="sup-bracket' + (zero ? ' sup-zero' : '') + (active ? ' sup-active' : '') + '">' +
+        '<span class="sup-models">' + this.printEsc(t.models) + '</span><span class="sup-val">' + this.printEsc(t.supply) + '</span></div>';
+    }).join('');
+    const active = unit.tiers[activeTierIdx];
+    return '<div class="supply-track"><span class="supply-track-label">Supply</span><div class="supply-brackets">' + brackets +
+      '</div><span class="supply-cost">' + this.printEsc(active.models) + ' mdl · ' + this.printEsc(active.cost || 0) + 'm</span></div>';
+  }
+  printWeaponRows(weapons) {
+    if (!weapons.length) return '';
+    return '<div class="section-label">Weapons</div><table class="weapon-table"><tr>' +
+      '<th style="width:20%">Weapon</th><th style="width:6%">RNG</th><th style="width:8%">TGT</th><th style="width:6%">RoA</th>' +
+      '<th style="width:6%">HIT</th><th style="width:10%">Surge</th><th style="width:8%">S.Die</th><th style="width:6%">DMG</th><th>Keywords</th></tr>' +
+      weapons.map(w => {
+        const phCls = (w.phase || '').toLowerCase();
+        const byK = {}; w.chips.forEach(c => { byK[c.k] = c.v; });
+        return '<tr><td>' + this.printEsc(w.name) + ' <span class="phase-tag ' + phCls + '">' + this.printEsc(w.phase) + '</span></td>' +
+          '<td>' + this.printEsc(byK.RNG) + '</td><td>' + this.printEsc(byK.TGT) + '</td><td>' + this.printEsc(byK.RoA) + '</td>' +
+          '<td>' + this.printEsc(byK.HIT) + '</td><td class="surge-val">' + this.printEsc(byK.SURGE) + '</td>' +
+          '<td class="surge-val">' + this.printEsc(byK['S.DIE']) + '</td><td>' + this.printEsc(byK.DMG) + '</td>' +
+          '<td class="wpn-keyword">' + this.printSegsHtml(w.kwSegs) + '</td></tr>';
+      }).join('') + '</table>';
+  }
+  printAbilityRows(abilityGroups) {
+    if (!abilityGroups.length) return '';
+    return '<div class="section-label">Abilities</div><div class="ability-list">' +
+      abilityGroups.map(g => g.items.map(a =>
+        '<div class="ability-row"><span class="ability-phase ' + g.phase.toLowerCase() + '">' + this.printEsc(g.phase) + '</span>' +
+        '<span class="ability-type">' + this.printEsc(a.type) + '</span>' +
+        '<span class="ability-name">' + this.printEsc(a.name) + '</span>' +
+        '<span class="ability-desc">— ' + this.printSegsHtml(a.segs) + '</span></div>'
+      ).join('')).join('') + '</div>';
+  }
+  printUpgradeRows(upgrades) {
+    if (!upgrades.length) return '';
+    return '<div class="upgrade-bar"><div class="section-label">Upgrades</div>' +
+      upgrades.map(u =>
+        '<div class="upgrade-row"><span class="upg-name">' + (u.on ? '✓ ' : '') + this.printEsc(u.name) + '</span>' +
+        '<span class="upg-cost">' + this.printEsc(u.cost) + '</span>' +
+        '<span class="upg-type">' + this.printEsc(u.type) + '</span>' +
+        '<span class="upg-desc">— ' + this.printSegsHtml(u.segs) + '</span></div>'
+      ).join('') + '</div>';
+  }
+  printUnitBlock(unit, entry, cost, role) {
+    const detail = this.buildDetail(unit, entry);
+    return '<div class="unit-block"><div class="unit-header"><span class="unit-name">' + this.printEsc(unit.name) +
+      (unit.unique ? ' <span style="font-weight:400;font-size:9pt;opacity:0.75">(Unique)</span>' : '') + '</span>' +
+      '<div class="unit-meta"><span class="unit-role">' + this.printEsc(role) + '</span><span class="unit-cost">' + cost + 'm</span></div></div>' +
+      this.printStatBar(detail.stats) +
+      this.printSupplyTrack(unit, entry.tierIdx) +
+      '<div class="unit-body">' + this.printWeaponRows(detail.weapons) + this.printAbilityRows(detail.abilityGroups) + this.printUpgradeRows(detail.upgrades) +
+      '<div class="notes-area"><div class="section-label">Game Notes</div><div class="notes-lines"></div><div class="notes-lines"></div></div></div></div>';
+  }
+  printCardHtml(card, headerBg, costLabel) {
+    const slotsLabel = Object.entries(card.slots || {}).map(([k, v]) => v + '× ' + k.charAt(0).toUpperCase() + k.slice(1)).join(' · ');
+    return '<div class="tac-card" style="flex:1 1 calc(50% - 4px)"><div class="tac-header" style="background:' + headerBg + '">' +
+      '<span class="tac-name">' + this.printEsc(card.name) + '</span><span class="tac-cost">' + this.printEsc(costLabel) +
+      (card.unique ? ' · <span class="tac-unique">U</span>' : '') + '</span></div>' +
+      '<div class="tac-body"><div class="tac-row"><span class="tac-meta">' + this.printEsc(card.resource || '') + (slotsLabel ? ' · ' + slotsLabel : '') + '</span></div>' +
+      (card.abilities || []).map(a => {
+        const phCls = a.phase.replace(' Phase', '').toLowerCase();
+        return '<div class="tac-ability"><span class="ability-phase ' + phCls + '">' + this.printEsc(a.phase.replace(' Phase', '')) + '</span>' +
+          '<span class="tac-ab-text"><span class="tac-ab-name">' + this.printEsc(a.name) + '</span> — ' + this.printSegsHtml(this.segs(a.description)) + '</span></div>';
+      }).join('') + '</div></div>';
+  }
+  printSheetCss() {
+    return "@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap');" +
+      ":root{--bg:#fff;--text:#1a1a1a;--muted:#5a5a5a;--faint:#9a9a9a;--border:#d0d0d0;--border-light:#e8e8e8;--header-bg:#1a1a1a;--header-text:#fff;--accent:#4a7c3f;--accent-light:#e8f0e6;--phase-assault:#b45309;--phase-combat:#991b1b;--phase-any:#4338ca;--phase-movement:#0e7490;--phase-scoring:#047857;--upgrade-bg:#f0f7ee;--upgrade-border:#9aba8e;--stat-bg:#f5f5f5}" +
+      "*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Source Sans 3',sans-serif;font-size:9.5pt;line-height:1.35;color:var(--text);background:var(--bg);padding:0.4in}" +
+      "@media print{body{padding:0}.unit-block{break-inside:avoid}}" +
+      ".page-header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--header-bg);padding-bottom:6px;margin-bottom:14px}" +
+      ".page-header h1{font-size:16pt;font-weight:700;letter-spacing:-0.02em;text-transform:uppercase}" +
+      ".page-header .faction-tag{font-family:'Source Code Pro',monospace;font-size:8pt;color:var(--muted);letter-spacing:0.08em}" +
+      ".section-header{border-bottom:2px solid #7c3aed;display:flex;justify-content:space-between;align-items:baseline;padding-bottom:4px;margin:18px 0 8px}" +
+      ".section-header.tactics{border-bottom-color:#b45309}" +
+      ".section-header h2{font-size:13pt;font-weight:700;text-transform:uppercase}" +
+      ".section-header .faction-tag{font-family:'Source Code Pro',monospace;font-size:8pt;color:var(--muted)}" +
+      ".unit-block{border:1.5px solid var(--border);border-radius:3px;margin-bottom:14px;overflow:hidden}" +
+      ".unit-header{background:var(--header-bg);color:var(--header-text);padding:5px 10px;display:flex;justify-content:space-between;align-items:center}" +
+      ".unit-name{font-size:12pt;font-weight:700;text-transform:uppercase;letter-spacing:0.03em}" +
+      ".unit-meta{display:flex;gap:10px;align-items:center;font-family:'Source Code Pro',monospace;font-size:8pt}" +
+      ".unit-role{background:rgba(255,255,255,0.15);padding:1px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:0.06em}" +
+      ".unit-cost{color:#fbbf24;font-weight:500}" +
+      ".stat-bar{display:flex;border-bottom:1px solid var(--border);background:var(--stat-bg)}" +
+      ".stat-cell{flex:1;text-align:center;padding:4px 2px;border-right:1px solid var(--border-light);min-width:0}.stat-cell:last-child{border-right:none}" +
+      ".stat-label{font-size:6.5pt;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.08em;display:block}" +
+      ".stat-val{font-family:'Source Code Pro',monospace;font-size:11pt;font-weight:500;display:block;line-height:1.2}" +
+      ".supply-track{display:flex;align-items:center;border-bottom:1px solid var(--border);background:#fafafa;padding:3px 10px}" +
+      ".supply-track-label{font-size:6.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--faint);margin-right:8px;white-space:nowrap}" +
+      ".supply-brackets{display:flex;gap:3px;flex-wrap:wrap}" +
+      ".sup-bracket{display:inline-flex;align-items:center;font-family:'Source Code Pro',monospace;font-size:7.5pt;border:1px solid var(--border);border-radius:2px;overflow:hidden;line-height:1}" +
+      ".sup-models{padding:2px 5px;background:#fff;color:var(--text);border-right:1px solid var(--border)}" +
+      ".sup-val{padding:2px 5px;background:var(--stat-bg);color:var(--text);font-weight:600;min-width:16px;text-align:center}" +
+      ".sup-bracket.sup-zero .sup-val{color:var(--faint)}" +
+      ".sup-bracket.sup-active{border-color:var(--accent);background:var(--accent-light)}" +
+      ".sup-bracket.sup-active .sup-val{background:var(--accent);color:#fff;font-weight:700}" +
+      ".supply-cost{margin-left:auto;font-family:'Source Code Pro',monospace;font-size:7.5pt;color:var(--muted)}" +
+      ".unit-body{padding:6px 10px 8px}" +
+      ".section-label{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);border-bottom:1px solid var(--border-light);padding-bottom:2px;margin:8px 0 4px}" +
+      ".section-label:first-child{margin-top:0}" +
+      ".weapon-table{width:100%;border-collapse:collapse;font-size:8.5pt;margin:2px 0}" +
+      ".weapon-table th{font-size:6.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--faint);text-align:center;padding:2px 3px;border-bottom:1px solid var(--border)}" +
+      ".weapon-table th:first-child{text-align:left}" +
+      ".weapon-table td{text-align:center;padding:3px;border-bottom:1px solid var(--border-light);font-family:'Source Code Pro',monospace;font-size:8pt}" +
+      ".weapon-table td:first-child{text-align:left;font-family:'Source Sans 3',sans-serif;font-weight:600;font-size:8.5pt}" +
+      ".weapon-table tr:last-child td{border-bottom:none}" +
+      ".phase-tag{font-family:'Source Sans 3',sans-serif;font-size:6pt;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;padding:0 4px;border-radius:2px;display:inline-block;margin-left:4px;vertical-align:middle}" +
+      ".phase-tag.assault{background:#fef3c7;color:var(--phase-assault)}.phase-tag.combat{background:#fee2e2;color:var(--phase-combat)}" +
+      ".phase-tag.movement{background:#d5f5f6;color:var(--phase-movement)}.phase-tag.any{background:#e0e7ff;color:var(--phase-any)}.phase-tag.scoring{background:#d1fae5;color:var(--phase-scoring)}" +
+      ".surge-val{color:#b91c1c;font-weight:500}" +
+      ".ability-list{margin:2px 0}.ability-row{display:flex;align-items:flex-start;gap:6px;padding:2px 0;border-bottom:1px solid var(--border-light);font-size:8.5pt}" +
+      ".ability-row:last-child{border-bottom:none}" +
+      ".ability-phase{font-size:6pt;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;padding:1px 5px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:1px}" +
+      ".ability-phase.any{background:#e0e7ff;color:var(--phase-any)}.ability-phase.movement{background:#d5f5f6;color:var(--phase-movement)}" +
+      ".ability-phase.assault{background:#fef3c7;color:var(--phase-assault)}.ability-phase.combat{background:#fee2e2;color:var(--phase-combat)}.ability-phase.scoring{background:#d1fae5;color:var(--phase-scoring)}" +
+      ".ability-type{font-family:'Source Code Pro',monospace;font-size:6.5pt;color:var(--faint);flex-shrink:0;min-width:42px;margin-top:2px}" +
+      ".ability-name{font-weight:600;white-space:nowrap;flex-shrink:0}" +
+      ".ability-desc{color:var(--muted);flex:1;min-width:0}" +
+      ".kw{font-variant:small-caps;font-weight:600;color:var(--text);letter-spacing:0.02em}" +
+      ".upgrade-bar{background:var(--upgrade-bg);border:1px solid var(--upgrade-border);border-radius:2px;padding:4px 8px;margin-top:6px}" +
+      ".upgrade-bar .section-label{color:var(--accent);border-bottom-color:var(--upgrade-border);margin-top:0}" +
+      ".upgrade-row{display:flex;align-items:baseline;gap:6px;padding:2px 0;font-size:8.5pt;border-bottom:1px solid rgba(154,186,142,0.3)}.upgrade-row:last-child{border-bottom:none}" +
+      ".upg-name{font-weight:600;white-space:nowrap}" +
+      ".upg-cost{font-family:'Source Code Pro',monospace;font-size:7.5pt;color:var(--accent);white-space:nowrap;flex-shrink:0}" +
+      ".upg-type{font-family:'Source Code Pro',monospace;font-size:6.5pt;color:var(--faint);flex-shrink:0}" +
+      ".upg-desc{color:var(--muted);flex:1;min-width:0}" +
+      ".notes-area{border-top:1px dashed var(--border);margin-top:6px;padding-top:4px}" +
+      ".notes-area .section-label{border-bottom:none;margin-bottom:2px}.notes-lines{border-bottom:1px solid var(--border-light);height:16px}" +
+      ".tac-card{border:1px solid var(--border);border-radius:3px;flex:1 1 calc(50% - 4px);min-width:260px;overflow:hidden}" +
+      ".tac-header{background:#3f2f1a;color:#fbbf24;padding:3px 8px;display:flex;justify-content:space-between;align-items:center}" +
+      ".tac-name{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:0.02em}" +
+      ".tac-cost{font-family:'Source Code Pro',monospace;font-size:7.5pt;color:#fcd34d}" +
+      ".tac-unique{background:#fbbf24;color:#3f2f1a;padding:0 3px;border-radius:2px;font-weight:600;font-size:6.5pt}" +
+      ".tac-body{padding:4px 8px 5px}.tac-row{margin-bottom:3px}" +
+      ".tac-meta{font-family:'Source Code Pro',monospace;font-size:7.5pt;color:var(--muted)}" +
+      ".tac-ability{display:flex;align-items:flex-start;gap:5px;padding:2px 0;font-size:8pt;border-top:1px solid var(--border-light)}" +
+      ".tac-ab-name{font-weight:600}.tac-ab-text{color:var(--muted);flex:1;min-width:0;line-height:1.35}" +
+      "@media (max-width:700px){.tac-card{flex:1 1 100%}}";
+  }
+  exportArmySheet() {
+    const D = this.D();
+    const st = this.state;
+    const faction = D.FACTION_CARDS.find(f => f.id === st.factionId) || D.FACTION_CARDS[0];
+    const totals = this.totals();
+    const roles = ['Hero', 'Elite', 'Core', 'Support', 'Other'];
+    let unitsHtml = '';
+    roles.forEach(role => {
+      st.army.forEach(e => {
+        const unit = D.UNITS.find(u => u.id === e.unitId);
+        if (!unit || unit.role !== role) return;
+        const tier = unit.tiers[e.tierIdx];
+        const upgList = this.unitUpgList(unit);
+        const upgCost = (e.upgs || []).reduce((s, n) => { const u = upgList.find(x => x.name === n); return s + (u ? this.upgCostNum(u.cost) : 0); }, 0);
+        unitsHtml += this.printUnitBlock(unit, e, (tier.cost || 0) + upgCost, role);
+      });
+    });
+    const tacticalHtml = st.tactical.map(id => {
+      const t = D.TACTICAL_CARDS.find(x => x.id === id);
+      return t ? this.printCardHtml(t, '#3f2f1a', t.cost + 'g') : '';
+    }).join('');
+    const html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+      '<title>SC:TMG Army Sheet — Zerg</title><style>' + this.printSheetCss() + '</style></head><body>' +
+      '<div class="page-header"><h1>Zerg — Army Sheet</h1><span class="faction-tag">SC:TMG · ' + this.printEsc(faction.name.toUpperCase()) + ' · ' + totals.minerals + ' MIN' + (totals.gas ? ' · ' + totals.gas + ' GAS' : '') + '</span></div>' +
+      '<div class="section-header" style="border-bottom-color:#7c3aed"><h2>Faction Card</h2><span class="faction-tag">Provides starting slots + resource</span></div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:8px">' + this.printCardHtml(faction, '#3b1a5e', faction.resource || '') + '</div>' +
+      '<div class="section-header" style="border-bottom-color:var(--header-bg)"><h2>Units</h2><span class="faction-tag">' + st.army.length + ' unit' + (st.army.length === 1 ? '' : 's') + '</span></div>' +
+      (unitsHtml || '<div style="color:var(--faint);font-style:italic;padding:8px 0">No units mustered.</div>') +
+      (tacticalHtml ? '<div class="section-header tactics"><h2>Tactical Cards</h2><span class="faction-tag">Exhaust for CP or use ability · Refresh in Cleanup</span></div><div style="display:flex;flex-wrap:wrap;gap:8px">' + tacticalHtml + '</div>' : '') +
+      '</body></html>';
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
+  // ---------- actions ----------
+  toggleUpgrade(key, name) {
+    this.setState(st => ({
+      army: st.army.map(e => e.key === key ? { ...e, upgs: (e.upgs || []).includes(name) ? e.upgs.filter(n => n !== name) : [...(e.upgs || []), name] } : e)
+    }), () => this.save());
+  }
+  addUnit(unit) {
+    const opts = unit.tiers.map((t, i) => ({ t, i })).filter(x => x.t.cost !== null);
+    if (opts.length === 1) { this.commitAdd(unit.id, opts[0].i); return; }
+    this.setState({ sheet: { type: 'tier', unitId: unit.id, mode: 'add' } });
+  }
+  commitAdd(unitId, tierIdx) {
+    this.setState(st => ({
+      army: [...st.army, { key: 'k' + Date.now(), unitId, tierIdx, upgs: [], modelsLost: 0, deployed: false }],
+      sheet: null
+    }), () => this.save());
+  }
+  changeTier(entryKey, tierIdx) {
+    this.setState(st => ({
+      army: st.army.map(e => e.key === entryKey ? { ...e, tierIdx } : e),
+      sheet: null
+    }), () => this.save());
+  }
+
+  renderVals() {
+    const st = this.state;
+    if (!st.ready || !this.D()) {
+      return { ready: false };
+    }
+    const D = this.D();
+    const scale = D.ENGAGEMENT_SCALES.find(s => s.id === st.scaleId) || D.ENGAGEMENT_SCALES[1];
+    const faction = D.FACTION_CARDS.find(f => f.id === st.factionId) || D.FACTION_CARDS[0];
+    const totals = this.totals();
+    const phDefs = this.phaseDefs();
+    const ph = phDefs[st.play.phase] || phDefs[0];
+    const trackerBig = st.tab === 'battle';
+    const isGrand = scale.id === 'grand';
+    const mOver = !isGrand && totals.minerals > scale.minerals;
+    const gOver = !isGrand && totals.gas > scale.gas;
+
+    // slots
+    const baseSlots = { ...(faction.slots || {}) };
+    st.tactical.forEach(id => {
+      const t = D.TACTICAL_CARDS.find(x => x.id === id);
+      if (t) Object.entries(t.slots || {}).forEach(([k, v]) => { baseSlots[k] = (baseSlots[k] || 0) + v; });
+    });
+    const usedSlots = { hero: 0, elite: 0, core: 0, support: 0 };
+    st.army.forEach(e => {
+      const u = D.UNITS.find(x => x.id === e.unitId);
+      if (u && usedSlots[u.role.toLowerCase()] !== undefined) usedSlots[u.role.toLowerCase()] += 1;
+    });
+    const slotPills = ['hero', 'elite', 'core', 'support'].filter(k => baseSlots[k]).map(k => {
+      const over = usedSlots[k] > baseSlots[k];
+      return { label: k.slice(0, 1).toUpperCase() + k.slice(1, 3) + ' ' + usedSlots[k] + '/' + baseSlots[k], fg: over ? '#f08a8a' : '#a7aec2', bd: over ? 'rgba(240,74,74,0.4)' : 'var(--sc-border-input)' };
+    });
+
+    // roster groups
+    const roles = ['Hero', 'Elite', 'Core', 'Support', 'Other'];
+    const rosterGroups = roles.map(role => {
+      const entries = st.army.map(e => ({ e, unit: D.UNITS.find(u => u.id === e.unitId) })).filter(x => x.unit && x.unit.role === role);
+      if (!entries.length) return null;
+      const color = this.roleColor(role);
+      let cost = 0;
+      const items = entries.map(({ e, unit }) => {
+        const tier = unit.tiers[e.tierIdx];
+        const upgCost = (e.upgs || []).reduce((s, n) => {
+          const u = this.unitUpgList(unit).find(x => x.name === n);
+          return s + (u ? this.upgCostNum(u.cost) : 0);
+        }, 0);
+        cost += (tier.cost || 0) + upgCost;
+        const expanded = !!st.expArmy[e.key];
+        return {
+          name: unit.name, unique: !!unit.unique,
+          tierLabel: tier.tier + ' · ' + tier.models + ' models' + ((e.upgs || []).length ? ' · ' + e.upgs.length + ' upgrade' + (e.upgs.length > 1 ? 's' : '') : ''),
+          cost: (tier.cost || 0) + upgCost, supply: tier.supply,
+          expanded, chev: expanded ? 90 : 0, ...this.portrait(unit),
+          borderColor: expanded ? 'rgba(176,110,247,0.45)' : 'var(--sc-border-neutral)',
+          detail: this.buildDetail(unit, e),
+          onToggle: () => this.setState(s2 => ({ expArmy: { ...s2.expArmy, [e.key]: !s2.expArmy[e.key] } })),
+          onRemove: (ev) => { ev.stopPropagation(); this.setState(s2 => ({ army: s2.army.filter(x => x.key !== e.key) }), () => this.save()); },
+          onChangeTier: (ev) => { ev.stopPropagation(); this.setState({ sheet: { type: 'tier', unitId: unit.id, mode: 'change', entryKey: e.key } }); }
+        };
+      });
+      return { role, color, count: items.length, cost, entries: items };
+    }).filter(Boolean);
+
+    // battle tracking
+    const battleUnits = st.army.map(e => {
+      const unit = D.UNITS.find(u => u.id === e.unitId);
+      if (!unit) return null;
+      const tier = unit.tiers[e.tierIdx];
+      const startingModels = this.unitStartingModels(unit, e.tierIdx);
+      const remaining = Math.max(0, startingModels - (e.modelsLost || 0));
+      const effIdx = this.unitEffectiveTierIdx(unit, e.tierIdx, remaining);
+      const effTier = effIdx >= 0 ? unit.tiers[effIdx] : null;
+      const upgCost = (e.upgs || []).reduce((s, n) => {
+        const u = this.unitUpgList(unit).find(x => x.name === n);
+        return s + (u ? this.upgCostNum(u.cost) : 0);
+      }, 0);
+      const expanded = !!st.expArmy[e.key];
+      return {
+        key: e.key, role: unit.role, name: unit.name, unique: !!unit.unique,
+        tierLabel: tier.tier + ' · ' + tier.models + ' models' + ((e.upgs || []).length ? ' · ' + e.upgs.length + ' upgrade' + (e.upgs.length > 1 ? 's' : '') : ''),
+        cost: (tier.cost || 0) + upgCost,
+        ...this.portrait(unit),
+        borderColor: expanded ? 'rgba(176,110,247,0.45)' : 'var(--sc-border-neutral)',
+        expanded, chev: expanded ? 90 : 0,
+        detail: this.buildDetail(unit, e),
+        onToggle: () => this.setState(s2 => ({ expArmy: { ...s2.expArmy, [e.key]: !s2.expArmy[e.key] } })),
+        startingModels, remaining, wipedOut: remaining <= 0,
+        supply: effTier ? (effTier.supply || 0) : 0,
+        deployed: !!e.deployed,
+        modelLossLabel: remaining + ' / ' + startingModels + ' models',
+        onLossDown: (ev) => { ev.stopPropagation(); this.setModelsLost(e.key, 1); },
+        onLossUp: (ev) => { ev.stopPropagation(); this.setModelsLost(e.key, -1); },
+        onToggleDeployed: (ev) => { ev.stopPropagation(); this.toggleDeployed(e.key); }
+      };
+    }).filter(Boolean);
+    const battleSupplyUsed = battleUnits.reduce((s, u) => s + (u.deployed ? u.supply : 0), 0);
+    const battleSupplyRemaining = Math.max(0, st.battleSupplyAvailable - battleSupplyUsed);
+    const battleGroups = roles.map(role => {
+      const entries = battleUnits.filter(u => u.role === role).map(u => ({
+        ...u,
+        canDeploy: u.deployed || u.wipedOut ? true : battleSupplyRemaining >= u.supply,
+        deployBg: u.deployed ? 'rgba(53,199,107,0.16)' : 'transparent',
+        deployBd: u.deployed ? 'rgba(53,199,107,0.45)' : (u.wipedOut ? 'var(--sc-border-neutral)' : (battleSupplyRemaining >= u.supply ? 'var(--sc-border-input)' : 'rgba(240,74,74,0.35)')),
+        deployFg: u.deployed ? '#5fd98d' : (u.wipedOut ? '#5b6275' : '#c8cede'),
+        deployLabel: u.deployed ? 'On Table' : (u.wipedOut ? 'Wiped Out' : 'In Reserves')
+      }));
+      if (!entries.length) return null;
+      return { role, color: this.roleColor(role), entries };
+    }).filter(Boolean);
+    const battleTactical = st.tactical.map(id => {
+      const t = D.TACTICAL_CARDS.find(x => x.id === id);
+      if (!t) return null;
+      const tapped = st.tacticalTapped.includes(id);
+      return {
+        id, name: t.name, cost: t.cost, tapped,
+        bg: tapped ? 'rgba(139,146,163,0.1)' : 'rgba(56,211,232,0.1)',
+        bd: tapped ? 'var(--sc-border-input)' : 'rgba(56,211,232,0.35)',
+        fg: tapped ? '#5b6275' : '#38d3e8',
+        label: tapped ? 'Tapped' : 'Ready',
+        onToggle: () => this.toggleTapped(id)
+      };
+    }).filter(Boolean);
+    const anyTapped = st.tacticalTapped.length > 0;
+
+    // library groups
+    const armyIds = st.army.map(e => e.unitId);
+    const libraryGroups = roles.map(role => {
+      const units = D.UNITS.filter(u => u.role === role);
+      if (!units.length) return null;
+      return {
+        role, color: this.roleColor(role),
+        entries: units.map(u => {
+          const expanded = !!st.expLib[u.id];
+          return {
+            name: u.name, unique: !!u.unique, inArmy: armyIds.includes(u.id), ...this.portrait(u),
+            expanded, borderColor: expanded ? 'rgba(176,110,247,0.45)' : 'var(--sc-border-neutral)',
+            tags: (u.tags || []).map(t => ({ name: t, onOpen: (ev) => { ev.stopPropagation(); this.openTag(t); } })),
+            detail: expanded ? this.buildDetail(u, null) : null,
+            onToggle: () => this.setState(s2 => ({ expLib: { ...s2.expLib, [u.id]: !s2.expLib[u.id] } })),
+            onAdd: (ev) => { ev.stopPropagation(); this.addUnit(u); }
+          };
+        })
+      };
+    }).filter(Boolean);
+
+    // tactics groups
+    const catNames = { creep: 'Creep', combat: 'Combat', positioning: 'Positioning', general: 'Cards' };
+    const cats = [];
+    D.TACTICAL_CARDS.forEach(t => { const c = t.category || 'general'; if (!cats.includes(c)) cats.push(c); });
+    const tacticalGroups = cats.map(cat => {
+      const cards = D.TACTICAL_CARDS.filter(t => (t.category || 'general') === cat);
+      if (!cards.length) return null;
+      return {
+        name: catNames[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1)),
+        cards: cards.map(t => {
+          const inArmy = st.tactical.includes(t.id);
+          const expanded = !!st.expTac[t.id];
+          return {
+            name: t.name, unique: !!t.unique, summary: t.summary, cost: t.cost,
+            resource: t.resource || false, expanded,
+            borderColor: inArmy ? 'rgba(56,211,232,0.45)' : (expanded ? 'rgba(176,110,247,0.45)' : 'var(--sc-border-neutral)'),
+            slotPills: Object.entries(t.slots || {}).map(([k, v]) => '+' + v + ' ' + k),
+            btnGlyph: inArmy ? '✓' : '+',
+            btnBg: inArmy ? 'rgba(53,199,107,0.16)' : 'rgba(147,51,234,0.16)',
+            btnBd: inArmy ? 'rgba(53,199,107,0.45)' : 'rgba(176,110,247,0.45)',
+            btnFg: inArmy ? '#5fd98d' : '#d9bafc',
+            abilities: expanded ? t.abilities.map(a => ({ name: a.name, type: a.type, phase: a.phase.replace(' Phase', ''), ...this.phaseBadge(a.phase), segs: this.segs(a.description) })) : [],
+            onToggle: () => this.setState(s2 => ({ expTac: { ...s2.expTac, [t.id]: !s2.expTac[t.id] } })),
+            onAddRemove: (ev) => {
+              ev.stopPropagation();
+              this.setState(s2 => ({ tactical: s2.tactical.includes(t.id) ? s2.tactical.filter(x => x !== t.id) : [...s2.tactical, t.id] }), () => this.save());
+            }
+          };
+        })
+      };
+    }).filter(Boolean);
+
+    // roster tactical strip
+    const rosterTactical = st.tactical.map(id => {
+      const t = D.TACTICAL_CARDS.find(x => x.id === id);
+      if (!t) return null;
+      return { name: t.name, summary: t.summary, cost: t.cost, onOpen: () => this.setState({ tab: 'tactics', expTac: { ...st.expTac, [t.id]: true } }) };
+    }).filter(Boolean);
+
+    // faction cards
+    const factionCards = D.FACTION_CARDS.map(fc => {
+      const sel = fc.id === st.factionId;
+      return {
+        name: fc.name, resource: fc.resource,
+        bg: sel ? 'linear-gradient(180deg,rgba(147,51,234,0.12),rgba(18,21,31,1) 55%)' : '#12151f',
+        bd: sel ? 'rgba(176,110,247,0.55)' : 'var(--sc-border-neutral)',
+        dot: sel ? '#b06ef7' : 'transparent', dotBd: sel ? '#b06ef7' : '#3a4154',
+        slotPills: Object.entries(fc.slots || {}).map(([k, v]) => v + ' ' + k),
+        abilities: fc.abilities.map(a => ({ name: a.name, type: a.type, phase: a.phase.replace(' Phase', ''), ...this.phaseBadge(a.phase), segs: this.segs(a.description) })),
+        onSelect: () => this.setState({ factionId: fc.id }, () => this.save())
+      };
+    });
+
+    // codex
+    const cq = st.codexQ.trim().toLowerCase();
+    const match = (n, d) => !cq || n.toLowerCase().includes(cq) || d.toLowerCase().includes(cq);
+    const kwEntries = Object.entries(D.KEYWORDS).filter(([n, d]) => match(n, d.description)).sort((a, b) => a[0].localeCompare(b[0])).map(([n, d]) => ({ name: n, type: d.type, description: d.description }));
+    const tagEntries = Object.entries(D.TAGS).filter(([n, d]) => match(n, d.description)).map(([n, d]) => ({ name: n, type: d.type, description: d.description }));
+    const codexGroups = [
+      kwEntries.length ? { name: 'Keywords', entries: kwEntries } : null,
+      tagEntries.length ? { name: 'Tags', entries: tagEntries } : null
+    ].filter(Boolean);
+
+    // search
+    const sq = st.searchQ.trim().toLowerCase();
+    let searchGroups = [];
+    if (sq.length >= 2) {
+      const unitHits = D.UNITS.filter(u => u.name.toLowerCase().includes(sq) || u.tags.join(' ').toLowerCase().includes(sq)).map(u => ({
+        kind: 'Unit', badgeBg: 'rgba(147,51,234,0.18)', badgeFg: '#c99af7',
+        title: u.name, sub: u.role + ' · ' + u.tags.join(', '),
+        onOpen: () => this.setState(s2 => ({ searchOpen: false, tab: 'library', expLib: { ...s2.expLib, [u.id]: true } }))
+      }));
+      const kwHits = Object.entries(D.KEYWORDS).filter(([n, d]) => n.toLowerCase().includes(sq) || d.description.toLowerCase().includes(sq)).map(([n, d]) => ({
+        kind: 'Keyword', badgeBg: 'rgba(56,211,232,0.14)', badgeFg: '#38d3e8',
+        title: n, sub: d.description,
+        onOpen: () => this.setState({ searchOpen: false, sheet: { type: 'keyword', title: n, meta: d.type + ' · Keyword', body: d.description } })
+      }));
+      const tagHits = Object.entries(D.TAGS).filter(([n, d]) => n.toLowerCase().includes(sq) || d.description.toLowerCase().includes(sq)).map(([n, d]) => ({
+        kind: 'Tag', badgeBg: 'rgba(242,193,78,0.14)', badgeFg: '#f2c14e',
+        title: n, sub: d.description,
+        onOpen: () => this.setState({ searchOpen: false, sheet: { type: 'keyword', title: n, meta: d.type, body: d.description } })
+      }));
+      const tacHits = D.TACTICAL_CARDS.filter(t => t.name.toLowerCase().includes(sq) || (t.summary || '').toLowerCase().includes(sq)).map(t => ({
+        kind: 'Tactic', badgeBg: 'rgba(53,199,107,0.14)', badgeFg: '#5fd98d',
+        title: t.name, sub: t.summary,
+        onOpen: () => this.setState(s2 => ({ searchOpen: false, tab: 'tactics', expTac: { ...s2.expTac, [t.id]: true } }))
+      }));
+      searchGroups = [
+        unitHits.length ? { name: 'Units', hits: unitHits } : null,
+        kwHits.length ? { name: 'Keywords', hits: kwHits } : null,
+        tagHits.length ? { name: 'Tags', hits: tagHits } : null,
+        tacHits.length ? { name: 'Tactical Cards', hits: tacHits } : null
+      ].filter(Boolean);
+    }
+
+    // tier sheet
+    let tierUnitName = '', tierOptions = [];
+    if (st.sheet && st.sheet.type === 'tier') {
+      const unit = D.UNITS.find(u => u.id === st.sheet.unitId);
+      if (unit) {
+        tierUnitName = unit.name;
+        tierOptions = unit.tiers.map((t, i) => ({ t, i })).filter(x => x.t.cost !== null).map(x => ({
+          tier: x.t.tier, models: x.t.models, supply: x.t.supply, cost: x.t.cost,
+          onPick: () => st.sheet.mode === 'change' ? this.changeTier(st.sheet.entryKey, x.i) : this.commitAdd(unit.id, x.i)
+        }));
+      }
+    }
+
+    // tabs
+    const tabDefs = [
+      { id: 'faction', label: 'Brood' }, { id: 'library', label: 'Library' }, { id: 'tactics', label: 'Tactics' },
+      { id: 'roster', label: 'Roster' }, { id: 'battle', label: 'Battle' }, { id: 'codex', label: 'Codex' }
+    ];
+    const tabs = tabDefs.map(t => {
+      const active = st.tab === t.id;
+      return {
+        label: t.label,
+        isRoster: t.id === 'roster', isBattle: t.id === 'battle', isLibrary: t.id === 'library', isTactics: t.id === 'tactics', isFaction: t.id === 'faction', isCodex: t.id === 'codex',
+        bg: active ? 'rgba(147,51,234,0.1)' : 'transparent',
+        fg: active ? '#c99af7' : '#7c8398',
+        tick: active ? '#b06ef7' : 'transparent',
+        onSelect: () => { this.setState({ tab: t.id }); window.scrollTo(0, 0); }
+      };
+    });
+
+    const phases = phDefs.map((p, i) => {
+      const active = st.play.phase === i;
+      return {
+        short: p.short,
+        bg: active ? 'rgba(' + this.hexRgb(p.color) + ',0.2)' : '#1a1f2e',
+        bd: active ? p.color : 'var(--sc-border-input)',
+        fg: active ? p.color : '#8a91a5',
+        onSelect: (ev) => { ev.stopPropagation(); this.setState(s2 => ({ play: { ...s2.play, phase: i } }), () => this.savePlay()); }
+      };
+    });
+
+    const scales = D.ENGAGEMENT_SCALES.map(s => ({
+      name: s.name,
+      bg: s.id === st.scaleId ? 'rgba(147,51,234,0.22)' : 'transparent',
+      fg: s.id === st.scaleId ? '#d9bafc' : '#8a91a5',
+      onSelect: () => this.setState({ scaleId: s.id }, () => this.save())
+    }));
+
+    const bump = (field, d) => (ev) => {
+      ev.stopPropagation();
+      this.setState(s2 => ({ play: { ...s2.play, [field]: Math.max(field === 'round' ? 1 : 0, s2.play[field] + d) } }), () => this.savePlay());
+    };
+
+    return {
+      ready: true,
+      factionName: faction.name,
+      // play hud
+      round: st.play.round, phaseName: ph.name, phaseColor: ph.color,
+      vpYou: st.play.vpYou, vpFoe: st.play.vpFoe,
+      togglePlay: () => this.setState({ sheet: { type: 'play' } }),
+      trackerRoundBtn: trackerBig ? 40 : 34, trackerRoundVal: trackerBig ? '26px' : '20px',
+      trackerNextPhaseH: trackerBig ? 42 : 34, trackerNextPhaseFont: trackerBig ? '13px' : '12px',
+      trackerPhaseBtnH: trackerBig ? 46 : 38, trackerPhaseBtnFont: trackerBig ? '12px' : '11px',
+      trackerVpPad: trackerBig ? '12px 14px' : '8px 10px', trackerVpBtn: trackerBig ? 44 : 38,
+      trackerVpVal: trackerBig ? '30px' : '22px', trackerVpLabel: trackerBig ? '11px' : '10px',
+      roundUp: bump('round', 1), roundDown: bump('round', -1),
+      vpYouUp: bump('vpYou', 1), vpYouDown: bump('vpYou', -1),
+      vpFoeUp: bump('vpFoe', 1), vpFoeDown: bump('vpFoe', -1),
+      nextPhase: (ev) => {
+        ev.stopPropagation();
+        this.setState(s2 => {
+          const nx = s2.play.phase + 1;
+          return { play: { ...s2.play, phase: nx > 3 ? 0 : nx, round: nx > 3 ? s2.play.round + 1 : s2.play.round } };
+        }, () => this.savePlay());
+      },
+      resetPlay: (ev) => { ev.stopPropagation(); this.setState({ play: { round: 1, phase: 0, vpYou: 0, vpFoe: 0 } }, () => this.savePlay()); },
+      phases,
+      // resources
+      mineralsUsed: totals.minerals, mineralsCap: isGrand ? '∞' : scale.minerals, mineralsColor: mOver ? '#f08a8a' : '#f2c14e',
+      gasUsed: totals.gas, gasCap: isGrand ? '∞' : scale.gas, gasColor: gOver ? '#f08a8a' : '#38d3e8',
+      supplyUsed: totals.supply,
+      // tabs
+      tabs,
+      tabIsRoster: st.tab === 'roster', tabIsBattle: st.tab === 'battle', tabIsLibrary: st.tab === 'library', tabIsTactics: st.tab === 'tactics',
+      tabIsFaction: st.tab === 'faction', tabIsCodex: st.tab === 'codex',
+      // roster
+      scales, slotPills,
+      rosterEmpty: st.army.length === 0, rosterGroups,
+      hasTactical: rosterTactical.length > 0, rosterTactical, tacticalCount: rosterTactical.length,
+      // battle
+      battleEmpty: battleUnits.length === 0, battleGroups,
+      battleSupplyAvailable: st.battleSupplyAvailable, battleSupplyUsed, battleSupplyRemaining,
+      battleSupplyUp: () => this.bumpBattleSupply(1), battleSupplyDown: () => this.bumpBattleSupply(-1),
+      hasBattleTactical: battleTactical.length > 0, battleTactical, anyTapped,
+      refreshTactical: () => this.refreshTactical(),
+      gotoLibrary: () => this.setState({ tab: 'library' }),
+      gotoFaction: () => this.setState({ tab: 'faction' }),
+      exportArmySheet: () => this.exportArmySheet(),
+      // saved rosters
+      savedRosterCountTag: st.savedRosters.length ? ' (' + st.savedRosters.length + ')' : '',
+      openRosters: () => this.setState({ sheet: { type: 'rosters' }, newRosterName: '', confirmDeleteRosterId: null }),
+      sheetRosters: !!(st.sheet && st.sheet.type === 'rosters'),
+      rostersEmpty: st.savedRosters.length === 0,
+      savedRosterRows: st.savedRosters.map(r => {
+        const n = (r.army || []).length;
+        const d = new Date(r.savedAt);
+        const dateStr = isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return {
+          name: r.name,
+          meta: n + ' unit' + (n === 1 ? '' : 's') + (dateStr ? ' · ' + dateStr : ''),
+          confirming: st.confirmDeleteRosterId === r.id,
+          onLoad: () => this.loadRoster(r.id),
+          onExport: () => this.exportRoster(r),
+          onDeleteStart: () => this.setState({ confirmDeleteRosterId: r.id }),
+          onCancelDelete: () => this.setState({ confirmDeleteRosterId: null }),
+          onDelete: () => this.deleteRoster(r.id)
+        };
+      }),
+      newRosterName: st.newRosterName,
+      onNewRosterNameInput: (ev) => this.setState({ newRosterName: ev.target.value }),
+      saveCurrentAsRoster: () => this.saveCurrentAsRoster(),
+      saveRosterBg: (st.newRosterName || '').trim() ? 'rgba(147,51,234,0.2)' : '#1a1f2e',
+      saveRosterFg: (st.newRosterName || '').trim() ? '#d9bafc' : '#5b6275',
+      rosterFileRef: (el) => { this._rosterFileEl = el; },
+      triggerImport: () => { if (this._rosterFileEl) this._rosterFileEl.click(); },
+      importRosterFile: (ev) => this.importRosterFile(ev),
+      // library / tactics / faction / codex
+      libraryGroups, tacticalGroups, factionCards,
+      codexQ: st.codexQ, onCodexInput: (ev) => this.setState({ codexQ: ev.target.value }), codexGroups,
+      // sheets
+      sheetKeyword: !!(st.sheet && st.sheet.type === 'keyword'),
+      sheetTitle: st.sheet ? st.sheet.title : '', sheetMeta: st.sheet ? st.sheet.meta : '', sheetBody: st.sheet ? st.sheet.body : '',
+      sheetTier: !!(st.sheet && st.sheet.type === 'tier'),
+      tierUnitName, tierOptions,
+      sheetPlay: !!(st.sheet && st.sheet.type === 'play'),
+      closeSheet: () => this.setState({ sheet: null }),
+      // search
+      searchOpen: st.searchOpen, searchQ: st.searchQ,
+      openSearch: () => this.setState({ searchOpen: true, searchQ: '' }),
+      closeSearch: () => this.setState({ searchOpen: false }),
+      onSearchInput: (ev) => this.setState({ searchQ: ev.target.value }),
+      searchRef: (el) => { if (el && !el._focused) { el._focused = true; setTimeout(() => el.focus(), 60); } },
+      searchGroups,
+      searchEmpty: sq.length < 2,
+      searchNoHits: sq.length >= 2 && searchGroups.length === 0
+    };
+  }
+}
+
+</script>
+</body>
+</html>

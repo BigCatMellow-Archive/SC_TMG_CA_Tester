@@ -1,0 +1,36 @@
+/*
+  Shared, cross-army-consistent primitives for the StarCraft RPG Companion
+  .dc.html pages: layout shapes (card corner-cut geometry, card background),
+  neutral (non-faction) border colors, base resets, and keyframes reused
+  identically across Command Center / Terran / Zerg / Protoss / Rules /
+  Missions / UnitDetail.
+
+  Per-army theme colors (faction accents) stay in each army's own .dc.html
+  file and are NOT defined here.
+*/
+
+:root {
+  --sc-card-bg: linear-gradient(180deg,#10131e,#0b0e17);
+  --sc-border-neutral: #272d3c;
+  --sc-border-input: #2b3145;
+
+  --sc-corner-8: polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  --sc-corner-9: polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));
+  --sc-corner-10: polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  --sc-corner-12: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  --sc-corner-16: polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));
+  --sc-corner-14-top: polygon(0 14px,14px 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);
+  --sc-corner-14-bottom: polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px));
+  --sc-diamond: polygon(50% 0,100% 50%,50% 100%,0 50%);
+}
+
+html, body { margin: 0; padding: 0; background: #05060a; }
+body { -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; }
+input { outline: none; }
+input::placeholder { color: #5b6275; }
+
+@keyframes scPulse { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+@keyframes scFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scSheetUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes scSheetDown { from { transform: translateY(-24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

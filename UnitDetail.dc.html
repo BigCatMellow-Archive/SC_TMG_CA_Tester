@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:grid;gap:12px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,system-ui,sans-serif">
+
+  <!-- tags -->
+  <sc-if value="{{ hasTags }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      <sc-for list="{{ tags }}" as="tg" hint-placeholder-count="3">
+        <button onClick="{{ tg.onOpen }}" style="font-size:10px;font-weight:600;letter-spacing:0.04em;padding:3px 8px;background:#1a1f2e;border:1px solid var(--sc-border-input);color:#a7aec2;cursor:pointer;border-radius:2px">{{ tg.name }}</button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- stats -->
+  <div style="display:grid;grid-template-columns:repeat({{ statCols }},1fr);gap:5px">
+    <sc-for list="{{ stats }}" as="stt" hint-placeholder-count="5">
+      <div style="text-align:center;padding:7px 2px;background:rgba(23,27,40,0.7);;border:1px solid #232939">
+        <div style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;color:#8a91a5">{{ stt.k }}</div>
+        <div style="font-family:'Chakra Petch',sans-serif;font-size:15px;font-weight:700;color:#e9ecf2;line-height:1.25">{{ stt.v }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- weapons -->
+  <sc-if value="{{ hasWeapons }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;gap:8px">
+      <sc-for list="{{ weapons }}" as="wp" hint-placeholder-count="2">
+        <div style="background:rgba(23,27,40,0.7);;border:1px solid #232939;padding:9px 10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+            <span style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.03em;color:#e9ecf2">{{ wp.name }}</span>
+            <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:2px 6px;background:{{ wp.phBg }};color:{{ wp.phFg }}">{{ wp.phase }}</span>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <sc-for list="{{ wp.chips }}" as="ch" hint-placeholder-count="7">
+              <span style="display:inline-flex;align-items:baseline;gap:4px;padding:3px 7px;background:#12151f;border:1px solid #232939">
+                <span style="font-family:Rajdhani,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;color:#5b6275">{{ ch.k }}</span>
+                <span style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;color:#c8cede">{{ ch.v }}</span>
+              </span>
+            </sc-for>
+          </div>
+          <sc-if value="{{ wp.kwSegs }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:#b9bfd0;margin-top:6px"><sc-for list="{{ wp.kwSegs }}" as="sg" hint-placeholder-count="1"><sc-if value="{{ sg.kw }}" hint-placeholder-val="{{ false }}"><span onClick="{{ sg.onOpen }}" style="color:var(--fc-text-tint,#c99af7);border-bottom:1px dotted var(--fc-primary-60,rgba(176,110,247,0.6));font-weight:600;cursor:pointer">{{ sg.t }}</span></sc-if><sc-if value="{{ sg.plain }}" hint-placeholder-val="{{ true }}"><span>{{ sg.t }}</span></sc-if></sc-for></div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- abilities -->
+  <sc-for list="{{ abilityGroups }}" as="ag" hint-placeholder-count="2">
+    <div>
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+        <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;background:{{ ag.phBg }};color:{{ ag.phFg }}">{{ ag.phase }}</span>
+        <span style="flex:1;height:1px;background:#1f2430"></span>
+      </div>
+      <div style="display:grid;gap:8px">
+        <sc-for list="{{ ag.items }}" as="ab" hint-placeholder-count="2">
+          <div>
+            <div style="display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:2px">
+              <span style="font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;color:#e9ecf2">{{ ab.name }}</span>
+              <span style="font-size:11px;color:#8a91a5">{{ ab.type }}</span>
+            </div>
+            <div style="font-size:13px;color:#b9bfd0;line-height:1.55"><sc-for list="{{ ab.segs }}" as="sg" hint-placeholder-count="1"><sc-if value="{{ sg.kw }}" hint-placeholder-val="{{ false }}"><span onClick="{{ sg.onOpen }}" style="color:var(--fc-text-tint,#c99af7);border-bottom:1px dotted var(--fc-primary-60,rgba(176,110,247,0.6));font-weight:600;cursor:pointer">{{ sg.t }}</span></sc-if><sc-if value="{{ sg.plain }}" hint-placeholder-val="{{ true }}"><span>{{ sg.t }}</span></sc-if></sc-for></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+
+  <!-- upgrades -->
+  <sc-if value="{{ hasUpgrades }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+        <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;background:rgba(242,193,78,0.14);color:#f2c14e">Upgrades</span>
+        <span style="flex:1;height:1px;background:#1f2430"></span>
+      </div>
+      <div style="display:grid;gap:6px">
+        <sc-for list="{{ upgrades }}" as="up" hint-placeholder-count="2">
+          <div onClick="{{ up.onToggle }}" role="button" style="display:flex;gap:10px;padding:9px 10px;background:{{ up.bg }};border:1px solid {{ up.bd }};cursor:{{ up.cursor }}">
+            <sc-if value="{{ up.interactive }}" hint-placeholder-val="{{ false }}">
+              <span style="width:18px;height:18px;flex:0 0 auto;margin-top:2px;display:grid;place-items:center;border:1px solid {{ up.boxBd }};background:{{ up.boxBg }}">
+                <sc-if value="{{ up.on }}" hint-placeholder-val="{{ false }}"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.8 9 10 3.5" stroke="#0a0c11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if>
+              </span>
+            </sc-if>
+            <span style="flex:1;min-width:0">
+              <span style="display:flex;align-items:baseline;gap:7px;flex-wrap:wrap">
+                <span style="font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;color:#e9ecf2">{{ up.name }}</span>
+                <span style="font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;color:#f2c14e">{{ up.cost }}</span>
+                <span style="font-family:Rajdhani,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:1px 6px;background:{{ up.phBg }};color:{{ up.phFg }}">{{ up.phase }}</span>
+              </span>
+              <span style="display:block;font-size:12px;color:#9aa1b4;line-height:1.5;margin-top:2px"><sc-for list="{{ up.segs }}" as="sg" hint-placeholder-count="1"><sc-if value="{{ sg.kw }}" hint-placeholder-val="{{ false }}"><span onClick="{{ sg.onOpen }}" style="color:var(--fc-text-tint,#c99af7);border-bottom:1px dotted var(--fc-primary-60,rgba(176,110,247,0.6));font-weight:600;cursor:pointer">{{ sg.t }}</span></sc-if><sc-if value="{{ sg.plain }}" hint-placeholder-val="{{ true }}"><span>{{ sg.t }}</span></sc-if></sc-for></span>
+            </span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 400, &quot;height&quot;: 500}, &quot;detail&quot;: {&quot;editor&quot;: null, &quot;tsType&quot;: &quot;object&quot;, &quot;default&quot;: null}}">
+class Component extends DCLogic {
+  renderVals() {
+    const d = this.props.detail || {};
+    const stats = d.stats || [];
+    const upgrades = (d.upgrades || []).map(u => ({
+      ...u,
+      cursor: u.interactive ? 'pointer' : 'default',
+      bg: u.on ? 'var(--fc-bg-10, rgba(147,51,234,0.1))' : '#171b28',
+      bd: u.on ? 'var(--fc-primary-45, rgba(176,110,247,0.45))' : '#232939',
+      boxBd: u.on ? 'var(--fc-primary-solid, #b06ef7)' : '#3a4154',
+      boxBg: u.on ? 'var(--fc-primary-solid, #b06ef7)' : 'transparent',
+      onToggle: u.interactive ? u.onToggle : null
+    }));
+    return {
+      tags: d.tags || [],
+      hasTags: (d.tags || []).length > 0,
+      stats,
+      statCols: Math.max(stats.length, 1),
+      weapons: d.weapons || [],
+      hasWeapons: (d.weapons || []).length > 0,
+      abilityGroups: d.abilityGroups || [],
+      upgrades,
+      hasUpgrades: upgrades.length > 0
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "starcraft-rpg-companion-design",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:units": "node ./scripts/build-units.mjs",
+    "build:missions": "node ./scripts/build-missions.mjs",
+    "build:rules": "node ./scripts/build-rules.mjs",
+    "build": "node ./scripts/build-all.mjs"
+  }
+}
