@@ -6,5 +6,4 @@ document.addEventListener('change',e=>{const el=e.target.closest('[data-action="
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
 rosterImport.addEventListener('change',()=>{const f=rosterImport.files?.[0];if(f)importRoster(f);rosterImport.value=''});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.open)closeModal();if(e.key==='/'&&!modal.open&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){e.preventDefault();openSearch()}});
-if(!D){app.innerHTML='<div style="padding:40px;color:white">Zerg data failed to load.</div>';return}
-load();render();
+if(!D){app.innerHTML='<div style="padding:40px;color:white">Zerg data failed to load.</div>'}else{load();render();}
