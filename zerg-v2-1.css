@@ -1,0 +1,40 @@
+:root{
+  color-scheme:dark;
+  --bg:#0b090d;
+  --bg-raised:#121014;
+  --panel:#181319;
+  --panel-2:#211923;
+  --panel-3:#2a202c;
+  --ink:#f2eee7;
+  --muted:#b8adb9;
+  --faint:#887d89;
+  --line:#3a2f3d;
+  --line-strong:#5b4860;
+  --chitin:#8e49a7;
+  --chitin-soft:#b98ac6;
+  --acid:#d8ff57;
+  --acid-ink:#1a1d0c;
+  --damage:#f06b4f;
+  --warning:#ffbe55;
+  --ok:#8edf7f;
+  --water:#67c8da;
+  --bone:#f2eee7;
+  --hero:#f2a95c;
+  --elite:#b98ac6;
+  --core:#d8ff57;
+  --support:#75d8ad;
+  --other:#a99dac;
+  --shadow:0 24px 70px rgba(0,0,0,.32);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--acid);outline-offset:3px}
+a{color:inherit}
+.app-shell{min-height:100dvh;max-width:1260px;margin:0 auto;background:
+  radial-gradient(80% 50% at 74% -10%,rgba(142,73,167,.17),transparent 62%),
+  radial-gradient(56% 44% at 8% 88%,rgba(216,255,87,.05),transparent 70%),
+  linear-gradient(145deg,#0f0b11 0%,#0b090d 48%,#0b0e0b 100%);position:relative;overflow:hidden;border-inline:1px solid rgba(91,72,96,.25)}
